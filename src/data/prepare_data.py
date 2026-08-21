@@ -8,7 +8,7 @@ from pathlib import Path
 import yaml
 
 
-DEFAULT_CLASSES = ["helmet", "head"]
+DEFAULT_CLASSES = ["person", "helmet", "no_helmet"]
 
 
 def write_dataset_yaml(dataset_dir: Path, output_path: Path, classes: list[str]) -> None:

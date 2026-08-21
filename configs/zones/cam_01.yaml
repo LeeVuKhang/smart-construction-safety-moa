@@ -1,0 +1,24 @@
+camera_id: cam_01
+
+default_zone:
+  zone_id: Z00
+  zone_type: general_area
+
+zones:
+  - zone_id: Z01
+    zone_type: active_work_area
+    priority: 30
+    polygon:
+      - [100, 200]
+      - [700, 200]
+      - [700, 650]
+      - [100, 650]
+
+  - zone_id: Z02
+    zone_type: restricted_area
+    priority: 100
+    polygon:
+      - [500, 250]
+      - [900, 250]
+      - [900, 700]
+      - [500, 700]

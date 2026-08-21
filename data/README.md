@@ -1,8 +1,8 @@
 # Data Directory
 
-Datasets should be stored locally and should not be committed to Git.
+Datasets are stored locally and are not committed to Git.
 
-## Expected Layout
+## Detection Dataset
 
 Raw datasets can be placed under:
 
@@ -10,7 +10,7 @@ Raw datasets can be placed under:
 data/raw/
 ```
 
-Processed YOLO-format datasets can be placed under:
+Processed YOLO-format datasets should use:
 
 ```text
 data/processed/
@@ -25,7 +25,7 @@ data/processed/
 └── dataset.yaml
 ```
 
-The YOLO dataset YAML should define paths and classes, for example:
+Example YOLO dataset YAML:
 
 ```yaml
 path: data/processed
@@ -34,18 +34,44 @@ val: images/val
 test: images/test
 
 names:
-  0: helmet
-  1: head
+  0: person
+  1: helmet
+  2: no_helmet
 ```
 
 ## Annotation Conversion
 
-Some source annotations may use Pascal VOC XML. Convert annotations to YOLO text labels before training.
-
-Use:
+Some source annotations may use Pascal VOC XML. Convert annotations to YOLO labels before training:
 
 ```bash
-python -m src.data.convert_annotations --xml-dir data/raw/annotations --image-dir data/raw/images --output-dir data/processed/labels/train
+python -m src.data.convert_annotations \
+  --xml-dir data/raw/annotations \
+  --output-dir data/processed/labels/train
 ```
 
-Keep conversion and dataset preparation separate from training so experiments remain reproducible.
+Keep annotation conversion separate from training.
+
+## Zone Evaluation Data
+
+Zone Grounding does not require a training dataset. It can be evaluated with manually prepared person detections and expected zones:
+
+```text
+data/zone_eval/
+├── images/
+├── zones/
+│   └── cam_01.yaml
+├── detections.json
+└── ground_truth.json
+```
+
+Example ground truth:
+
+```json
+[
+  {
+    "frame_id": "frame_001",
+    "person_id": "P01",
+    "expected_zone": "Z01"
+  }
+]
+```

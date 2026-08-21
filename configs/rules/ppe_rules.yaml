@@ -1,0 +1,11 @@
+zones:
+  active_work_area:
+    required_ppe:
+      - helmet
+
+  restricted_area:
+    required_ppe:
+      - helmet
+
+  general_area:
+    required_ppe: []

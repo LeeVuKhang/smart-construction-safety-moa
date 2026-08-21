@@ -1,0 +1,22 @@
+model: yolo11n.pt
+dataset_yaml: data/processed/dataset.yaml
+output_dir: results/training
+experiment_name: yolo11n_baseline
+device: auto
+
+epochs: 100
+batch: 16
+imgsz: 640
+patience: 20
+seed: 42
+workers: 4
+optimizer: auto
+
+validation:
+  conf: 0.25
+  iou: 0.7
+
+classes:
+  - person
+  - helmet
+  - no_helmet

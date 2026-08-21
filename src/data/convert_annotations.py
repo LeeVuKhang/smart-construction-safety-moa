@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 
-DEFAULT_CLASSES = ["helmet", "head"]
+DEFAULT_CLASSES = ["person", "helmet", "no_helmet"]
 
 
 def voc_box_to_yolo(

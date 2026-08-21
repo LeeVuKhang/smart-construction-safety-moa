@@ -20,18 +20,19 @@ def predict(config: dict, weights: Path, source: Path, save: bool = True) -> Non
     model = YOLO(str(weights))
     model.predict(
         source=str(source),
-        conf=config["confidence_threshold"],
+        conf=config["validation"]["conf"],
         imgsz=config["imgsz"],
-        project=config["output_dir"],
+        project="results/evaluation",
         name="predictions",
         save=save,
+        exist_ok=True,
     )
 
 
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(description="Run YOLO inference.")
-    parser.add_argument("--config", type=Path, default=Path("configs/baseline.yaml"))
+    parser.add_argument("--config", type=Path, default=Path("configs/models/yolo11n.yaml"))
     parser.add_argument("--weights", type=Path, required=True)
     parser.add_argument("--source", type=Path, required=True)
     parser.add_argument("--no-save", action="store_true", help="Do not save visual predictions.")

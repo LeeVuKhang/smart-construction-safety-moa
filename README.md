@@ -1,33 +1,59 @@
 # Construction Safety Monitoring
 
-This repository supports a university AI research project on construction safety monitoring. The current focus is a clean, reproducible object-detection baseline for identifying construction head-safety conditions from images or video frames.
+This repository supports a university AI research project on construction-site safety monitoring. The current implementation is a reproducible YOLO11 detection baseline with a separate deterministic Zone Grounding Agent.
 
 ## Research Motivation
 
-Construction sites contain dynamic hazards, changing environments, and workers with varying personal protective equipment (PPE) compliance. A reliable visual baseline is needed before adding higher-level safety reasoning, behavior analysis, or reporting.
+Construction sites contain dynamic hazards, changing work areas, and different PPE requirements across regions. A clear perception baseline and deterministic region grounding are needed before adding rule-based safety reasoning or future multi-agent analysis.
 
 ## Current Research Problem
 
-The current baseline studies detection of two classes:
+The detector uses exactly three classes:
 
+- `person`
 - `helmet`
-- `head`
+- `no_helmet`
 
-This allows initial evaluation of helmet-related PPE detection while keeping the research scope narrow and reproducible.
+The detector performs perception only. PPE evidence, zone grounding, and future rule evaluation remain separate components.
+
+## Current Research Pipeline
+
+```text
+Input Image / Video Frame
+        |
+        v
+YOLO11 Detector
+        |
+        v
+Structured Detections
+        |
+ ┌─────────────────┬─────────────────────┐
+ v                 v
+PPE Agent      Zone Grounding Agent
+ v                 v
+PPE Evidence    Region Grounding
+```
+
+Future modules are not implemented yet:
+
+```text
+Evidence Joiner
+Rule Agent
+Context Agent
+Behavior Agent
+Multi-Agent / MoA
+Automatic Safety Reporting
+```
 
 ## Current Baseline
 
-The baseline model is **YOLO11n** using the Ultralytics implementation.
+YOLO11n is the starting baseline. YOLO11s and YOLO11m are configured for fair model-selection experiments using the same dataset, split, seed, image size, augmentation policy, and evaluation protocol.
 
-High-level pipeline:
+No experimental results or model recommendation are reported until real training and benchmarking are completed.
 
-```text
-Data -> Preprocessing -> YOLO11n -> Predictions -> Evaluation
-```
+## Metrics
 
-## Evaluation Metrics
-
-The baseline should be evaluated with:
+Detection metrics:
 
 - Precision
 - Recall
@@ -35,7 +61,9 @@ The baseline should be evaluated with:
 - mAP@0.5
 - mAP@0.5:0.95
 
-No experimental results are reported here until they are produced and documented in this repository.
+Zone grounding metric:
+
+- Zone Assignment Accuracy
 
 ## Repository Structure
 
@@ -45,7 +73,14 @@ Construction-Safety-Monitoring/
 ├── requirements.txt
 ├── .gitignore
 ├── configs/
-│   └── baseline.yaml
+│   ├── models/
+│   │   ├── yolo11n.yaml
+│   │   ├── yolo11s.yaml
+│   │   └── yolo11m.yaml
+│   ├── zones/
+│   │   └── cam_01.yaml
+│   └── rules/
+│       └── ppe_rules.yaml
 ├── data/
 │   ├── raw/
 │   ├── processed/
@@ -53,22 +88,16 @@ Construction-Safety-Monitoring/
 ├── notebooks/
 │   └── baseline_yolo11.ipynb
 ├── src/
-│   ├── data/
-│   │   ├── prepare_data.py
-│   │   └── convert_annotations.py
+│   ├── detection/
 │   ├── training/
-│   │   └── train_yolo.py
 │   ├── evaluation/
-│   │   └── evaluate.py
-│   └── inference/
-│       └── predict.py
+│   ├── agents/
+│   ├── geometry/
+│   ├── rules/
+│   └── pipeline/
 ├── scripts/
-│   ├── train.sh
-│   └── evaluate.sh
 ├── results/
-│   └── .gitkeep
 ├── docs/
-│   └── pipeline.md
 └── tests/
 ```
 
@@ -92,48 +121,48 @@ pip install -r requirements.txt
 
 ## Dataset Setup
 
-Datasets are not committed to Git. Place local data under `data/raw/` or `data/processed/` and create a YOLO dataset YAML file. See `data/README.md` for the expected structure.
+Datasets are not committed to Git. Place YOLO-format datasets under `data/processed/` and update the `dataset_yaml` field in each file under `configs/models/`.
 
-Update `configs/baseline.yaml` so `dataset_yaml` points to the local dataset YAML file.
+See `data/README.md` for the expected dataset and zone-evaluation layouts.
 
 ## Training
 
+Train one model:
+
 ```bash
-python -m src.training.train_yolo --config configs/baseline.yaml
+python -m src.training.train_yolo --config configs/models/yolo11n.yaml
 ```
 
-or:
+Train all configured models:
 
 ```bash
-bash scripts/train.sh
+bash scripts/train_all.sh
 ```
 
 ## Evaluation
 
 ```bash
-python -m src.evaluation.evaluate --config configs/baseline.yaml --weights results/train/weights/best.pt
+python -m src.evaluation.detection_metrics \
+  --config configs/models/yolo11n.yaml \
+  --weights results/training/yolo11n_baseline/weights/best.pt
 ```
 
-or:
+## Model Benchmark
 
 ```bash
-bash scripts/evaluate.sh results/train/weights/best.pt
+python -m src.training.benchmark_models \
+  --configs configs/models/yolo11n.yaml configs/models/yolo11s.yaml configs/models/yolo11m.yaml
 ```
 
-## Inference
+Benchmarking requires trained weights and a real dataset. It saves:
 
-```bash
-python -m src.inference.predict --config configs/baseline.yaml --weights results/train/weights/best.pt --source path/to/image_or_directory
+```text
+results/benchmarks/model_comparison.csv
+results/benchmarks/model_comparison.md
 ```
 
-## Future Extensions
+## Zone Grounding
 
-Future research stages may add:
+Zones are fixed polygons configured manually for each camera under `configs/zones/`. A person is assigned using the bottom-center anchor of the person bounding box. If multiple polygons contain the anchor, the highest-priority zone wins. If no polygon contains the anchor, the person is assigned to `default_zone`.
 
-- Full PPE detection
-- Context analysis
-- Behavior analysis
-- Multi-agent / Mixture-of-Agents (MoA) reasoning
-- Automatic safety reporting
-
-These modules are intentionally not implemented in the current baseline setup.
+Zone Grounding does not check PPE, evaluate rules, trigger alerts, or perform behavior/MoA reasoning.
