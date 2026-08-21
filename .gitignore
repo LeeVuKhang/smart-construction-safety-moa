@@ -35,6 +35,7 @@ data/zone_eval/images/*
 
 # Generated outputs
 results/*
+results/**/*
 !results/**/
 !results/**/.gitkeep
 !results/.gitkeep
