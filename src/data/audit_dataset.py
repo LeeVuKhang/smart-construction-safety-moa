@@ -181,6 +181,16 @@ def audit_dataset(
     dataset_version: str = "v1.0",
 ) -> DatasetAudit:
     """Audit dataset and write summary outputs."""
+    if not dataset_yaml.exists():
+        audit = DatasetAudit(
+            dataset_yaml=str(dataset_yaml),
+            dataset_root=str(dataset_yaml.parent),
+            classes=[],
+            critical_errors=[f"Dataset YAML not found: {dataset_yaml}"],
+        )
+        write_outputs(audit, output_dir)
+        return audit
+
     config = load_dataset_yaml(dataset_yaml)
     root = dataset_root(dataset_yaml, config)
     classes = config["classes"]
