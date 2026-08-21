@@ -80,7 +80,7 @@ Known risks:
 - Public metadata does not provide target-class object counts; this must be measured after download.
 - The exact bounding-box policy for `no_helmet` must be visually checked after preparation.
 - Other PPE classes are dropped, so images containing only dropped classes become background or empty-label images.
-- Source labels may contain boxes extending slightly outside image boundaries. The preparation script clips target boxes to valid YOLO image bounds and records the count in `mapping_summary.json`; this is treated as data sanitation, not a semantic relabeling.
+- Source labels may contain boxes extending slightly outside image boundaries. The preparation script clips target boxes to valid YOLO image bounds with a tiny boundary margin and records the count in `mapping_summary.json`; this is treated as data sanitation, not a semantic relabeling.
 
 ## Dataset Preparation Plan
 

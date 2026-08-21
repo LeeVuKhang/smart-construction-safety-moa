@@ -22,6 +22,7 @@ SOURCE_TO_TARGET = {
 SPLITS = ["train", "val", "test"]
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 EPSILON = 1e-9
+BOUNDARY_MARGIN = 1e-6
 
 
 def download_zip(url: str, output_path: Path) -> None:
@@ -62,10 +63,10 @@ def clip_yolo_box(values: list[float]) -> tuple[list[float] | None, bool]:
     x_max = x_center + width / 2
     y_max = y_center + height / 2
 
-    clipped_x_min = min(max(x_min, 0.0), 1.0)
-    clipped_y_min = min(max(y_min, 0.0), 1.0)
-    clipped_x_max = min(max(x_max, 0.0), 1.0)
-    clipped_y_max = min(max(y_max, 0.0), 1.0)
+    clipped_x_min = min(max(x_min, BOUNDARY_MARGIN), 1.0 - BOUNDARY_MARGIN)
+    clipped_y_min = min(max(y_min, BOUNDARY_MARGIN), 1.0 - BOUNDARY_MARGIN)
+    clipped_x_max = min(max(x_max, BOUNDARY_MARGIN), 1.0 - BOUNDARY_MARGIN)
+    clipped_y_max = min(max(y_max, BOUNDARY_MARGIN), 1.0 - BOUNDARY_MARGIN)
 
     clipped = any(
         abs(original - adjusted) > EPSILON
@@ -114,7 +115,7 @@ def remap_label_file(source_label: Path, target_label: Path) -> tuple[int, int, 
                 continue
             if clipped:
                 clipped_boxes += 1
-            parts[1:5] = [f"{value:.6f}" for value in box]
+            parts[1:5] = [f"{value:.8f}" for value in box]
             remapped_lines.append(" ".join(parts))
             kept += 1
 
