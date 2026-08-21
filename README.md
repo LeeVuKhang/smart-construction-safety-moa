@@ -125,6 +125,12 @@ Datasets are not committed to Git. Place YOLO-format datasets under `data/proces
 
 See `data/README.md` for the expected dataset and zone-evaluation layouts.
 
+Run the dataset audit before training:
+
+```bash
+python -m src.data.audit_dataset --fail-on-critical
+```
+
 ## Training
 
 Train one model:
@@ -144,7 +150,7 @@ bash scripts/train_all.sh
 ```bash
 python -m src.evaluation.detection_metrics \
   --config configs/models/yolo11n.yaml \
-  --weights results/training/yolo11n_baseline/weights/best.pt
+  --weights results/training/yolo11n_v1/weights/best.pt
 ```
 
 ## Model Benchmark
@@ -159,6 +165,7 @@ Benchmarking requires trained weights and a real dataset. It saves:
 ```text
 results/benchmarks/model_comparison.csv
 results/benchmarks/model_comparison.md
+results/benchmarks/per_class_metrics.csv
 ```
 
 ## Zone Grounding

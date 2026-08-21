@@ -1,8 +1,9 @@
 model: yolo11m.pt
 dataset_yaml: data/processed/dataset.yaml
 output_dir: results/training
-experiment_name: yolo11m_baseline
+experiment_name: yolo11m_v1
 device: auto
+dataset_version: v1.0
 
 epochs: 100
 batch: 16
@@ -11,6 +12,9 @@ patience: 20
 seed: 42
 workers: 4
 optimizer: auto
+
+augmentation:
+  policy: ultralytics_default
 
 validation:
   conf: 0.25

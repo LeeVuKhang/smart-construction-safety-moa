@@ -7,6 +7,7 @@ import csv
 import json
 import platform
 import random
+import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -14,6 +15,8 @@ import numpy as np
 import torch
 import yaml
 from ultralytics import YOLO
+
+from src.data.audit_dataset import audit_dataset
 
 
 REQUIRED_FIELDS = {
@@ -29,8 +32,10 @@ REQUIRED_FIELDS = {
     "seed",
     "workers",
     "optimizer",
+    "augmentation",
     "validation",
     "classes",
+    "dataset_version",
 }
 EXPECTED_CLASSES = ["person", "helmet", "no_helmet"]
 
@@ -76,6 +81,7 @@ def save_training_metadata(config: dict, experiment_dir: Path) -> None:
     metadata = {
         "timestamp_utc": datetime.now(timezone.utc).isoformat(),
         "model": config["model"],
+        "dataset_version": config["dataset_version"],
         "dataset_yaml": config["dataset_yaml"],
         "seed": config["seed"],
         "imgsz": config["imgsz"],
@@ -86,12 +92,18 @@ def save_training_metadata(config: dict, experiment_dir: Path) -> None:
         "python": platform.python_version(),
         "platform": platform.platform(),
         "torch": torch.__version__,
+        "cuda_available": torch.cuda.is_available(),
+        "cuda_device_count": torch.cuda.device_count(),
+        "cuda_devices": [
+            torch.cuda.get_device_name(index) for index in range(torch.cuda.device_count())
+        ],
+        "git_commit": git_commit(),
     }
     with (experiment_dir / "metadata.json").open("w", encoding="utf-8") as file:
         json.dump(metadata, file, indent=2)
 
 
-def save_training_summary(experiment_dir: Path) -> None:
+def observed_training_summary(experiment_dir: Path) -> dict:
     """Save observed training summary when Ultralytics outputs are available."""
     results_csv = experiment_dir / "results.csv"
     summary = {
@@ -103,7 +115,10 @@ def save_training_summary(experiment_dir: Path) -> None:
 
     if results_csv.exists():
         with results_csv.open("r", encoding="utf-8") as file:
-            rows = list(csv.DictReader(file))
+            rows = [
+                {key.strip(): value for key, value in row.items()}
+                for row in csv.DictReader(file)
+            ]
         if rows:
             last_row = rows[-1]
             epoch = last_row.get("epoch")
@@ -113,9 +128,54 @@ def save_training_summary(experiment_dir: Path) -> None:
                 for key, value in last_row.items()
                 if key and "metrics/" in key
             }
+    return summary
 
+
+def save_training_summary(experiment_dir: Path) -> dict:
+    """Persist observed training summary."""
+    summary = observed_training_summary(experiment_dir)
     with (experiment_dir / "training_summary.json").open("w", encoding="utf-8") as file:
         json.dump(summary, file, indent=2)
+    return summary
+
+
+def git_commit() -> str:
+    """Return current git commit hash when available."""
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "HEAD"],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return ""
+
+
+def save_experiment_manifest(
+    config: dict,
+    experiment_dir: Path,
+    epochs_completed: int | None,
+) -> None:
+    """Save standardized experiment manifest."""
+    manifest = {
+        "model": config["model"],
+        "dataset_version": config["dataset_version"],
+        "dataset_yaml": config["dataset_yaml"],
+        "seed": config["seed"],
+        "imgsz": config["imgsz"],
+        "batch": config["batch"],
+        "epochs_requested": config["epochs"],
+        "epochs_completed": epochs_completed,
+        "patience": config["patience"],
+        "optimizer": config["optimizer"],
+        "device": config["device"],
+        "git_commit": git_commit(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "best_weights": str(experiment_dir / "weights" / "best.pt"),
+        "last_weights": str(experiment_dir / "weights" / "last.pt"),
+    }
+    with (experiment_dir / "experiment_manifest.json").open("w", encoding="utf-8") as file:
+        json.dump(manifest, file, indent=2)
 
 
 def train(config: dict) -> Path:
@@ -124,7 +184,19 @@ def train(config: dict) -> Path:
     set_seed(int(config["seed"]))
 
     experiment_dir = Path(config["output_dir"]) / config["experiment_name"]
+    audit = audit_dataset(
+        Path(config["dataset_yaml"]),
+        Path("results/dataset_audit"),
+        str(config["dataset_version"]),
+    )
+    if audit.critical_errors:
+        raise RuntimeError(
+            "Dataset audit failed. Fix critical errors before training: "
+            + "; ".join(audit.critical_errors)
+        )
+
     save_training_metadata(config, experiment_dir)
+    save_experiment_manifest(config, experiment_dir, epochs_completed=0)
 
     model = YOLO(config["model"])
     model.train(
@@ -141,7 +213,13 @@ def train(config: dict) -> Path:
         device=_device_arg(config["device"]),
         exist_ok=True,
     )
-    save_training_summary(experiment_dir)
+    summary = save_training_summary(experiment_dir)
+    actual_epoch = summary["actual_stopping_epoch"]
+    save_experiment_manifest(
+        config,
+        experiment_dir,
+        epochs_completed=actual_epoch + 1 if actual_epoch is not None else None,
+    )
     return experiment_dir
 
 

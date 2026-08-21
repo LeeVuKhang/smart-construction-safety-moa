@@ -30,10 +30,15 @@ The comparison records:
 - mAP@0.5:0.95
 - inference latency per image
 - model size on disk
+- per-class metrics for `person`, `helmet`, and `no_helmet`
 
 ## Selection Principle
 
-The final model should not be selected only by highest mAP. A practical recommendation should consider accuracy, latency, and model size together.
+The main scientific metric is mAP@0.5:0.95. Recall is the secondary metric, with special attention to `no_helmet` recall because missing a true PPE violation is important for safety monitoring.
+
+The final model should not be selected only by highest mAP. A practical recommendation should consider accuracy, recall, latency, FPS, parameter count, and model size together.
+
+If a larger model improves mAP@0.5:0.95 only marginally while adding substantial latency or size, prefer the smaller model. The benchmark script uses this documented rule when writing `configs/models/selected_model.yaml` after real benchmark results exist.
 
 Run:
 
@@ -47,4 +52,6 @@ Outputs:
 ```text
 results/benchmarks/model_comparison.csv
 results/benchmarks/model_comparison.md
+results/benchmarks/per_class_metrics.csv
+results/benchmarks/hardware.json
 ```

@@ -39,6 +39,17 @@ names:
   2: no_helmet
 ```
 
+The audit step writes fixed split manifests:
+
+```text
+data/processed/splits/train.txt
+data/processed/splits/val.txt
+data/processed/splits/test.txt
+data/processed/dataset_version.json
+```
+
+If the dataset already contains `images/train`, `images/val`, and `images/test`, that split is preserved.
+
 ## Annotation Conversion
 
 Some source annotations may use Pascal VOC XML. Convert annotations to YOLO labels before training:
