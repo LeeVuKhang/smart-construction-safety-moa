@@ -21,6 +21,7 @@ SOURCE_TO_TARGET = {
 }
 SPLITS = ["train", "val", "test"]
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
+EPSILON = 1e-9
 
 
 def download_zip(url: str, output_path: Path) -> None:
@@ -53,10 +54,47 @@ def iter_images(image_dir: Path) -> list[Path]:
     return sorted(path for path in image_dir.rglob("*") if path.suffix.lower() in IMAGE_EXTENSIONS)
 
 
-def remap_label_file(source_label: Path, target_label: Path) -> tuple[int, int]:
+def clip_yolo_box(values: list[float]) -> tuple[list[float] | None, bool]:
+    """Clip a normalized YOLO box to image boundaries."""
+    x_center, y_center, width, height = values
+    x_min = x_center - width / 2
+    y_min = y_center - height / 2
+    x_max = x_center + width / 2
+    y_max = y_center + height / 2
+
+    clipped_x_min = min(max(x_min, 0.0), 1.0)
+    clipped_y_min = min(max(y_min, 0.0), 1.0)
+    clipped_x_max = min(max(x_max, 0.0), 1.0)
+    clipped_y_max = min(max(y_max, 0.0), 1.0)
+
+    clipped = any(
+        abs(original - adjusted) > EPSILON
+        for original, adjusted in [
+            (x_min, clipped_x_min),
+            (y_min, clipped_y_min),
+            (x_max, clipped_x_max),
+            (y_max, clipped_y_max),
+        ]
+    )
+    clipped_width = clipped_x_max - clipped_x_min
+    clipped_height = clipped_y_max - clipped_y_min
+    if clipped_width <= 0 or clipped_height <= 0:
+        return None, clipped
+
+    return [
+        (clipped_x_min + clipped_x_max) / 2,
+        (clipped_y_min + clipped_y_max) / 2,
+        clipped_width,
+        clipped_height,
+    ], clipped
+
+
+def remap_label_file(source_label: Path, target_label: Path) -> tuple[int, int, int, int]:
     """Remap one YOLO label file and drop classes outside the baseline taxonomy."""
     kept = 0
     dropped = 0
+    clipped_boxes = 0
+    invalid_after_clip = 0
     remapped_lines: list[str] = []
 
     if source_label.exists():
@@ -70,12 +108,19 @@ def remap_label_file(source_label: Path, target_label: Path) -> tuple[int, int]:
                 dropped += 1
                 continue
             parts[0] = str(SOURCE_TO_TARGET[source_class])
+            box, clipped = clip_yolo_box([float(value) for value in parts[1:5]])
+            if box is None:
+                invalid_after_clip += 1
+                continue
+            if clipped:
+                clipped_boxes += 1
+            parts[1:5] = [f"{value:.6f}" for value in box]
             remapped_lines.append(" ".join(parts))
             kept += 1
 
     target_label.parent.mkdir(parents=True, exist_ok=True)
     target_label.write_text("\n".join(remapped_lines), encoding="utf-8")
-    return kept, dropped
+    return kept, dropped, clipped_boxes, invalid_after_clip
 
 
 def prepare_dataset(source_root: Path, target_root: Path) -> dict:
@@ -114,6 +159,8 @@ def prepare_dataset(source_root: Path, target_root: Path) -> dict:
         dropped_objects = 0
         image_count = 0
         empty_labels = 0
+        clipped_boxes = 0
+        invalid_after_clip = 0
         for image_path in iter_images(source_images):
             relative_image = image_path.relative_to(source_images)
             target_image = target_images / relative_image
@@ -122,9 +169,11 @@ def prepare_dataset(source_root: Path, target_root: Path) -> dict:
 
             source_label = source_labels / relative_image.with_suffix(".txt")
             target_label = target_labels / relative_image.with_suffix(".txt")
-            kept, dropped = remap_label_file(source_label, target_label)
+            kept, dropped, clipped, invalid = remap_label_file(source_label, target_label)
             kept_objects += kept
             dropped_objects += dropped
+            clipped_boxes += clipped
+            invalid_after_clip += invalid
             empty_labels += int(kept == 0)
             image_count += 1
 
@@ -132,6 +181,8 @@ def prepare_dataset(source_root: Path, target_root: Path) -> dict:
             "images": image_count,
             "kept_target_objects": kept_objects,
             "dropped_non_target_objects": dropped_objects,
+            "clipped_target_boxes": clipped_boxes,
+            "invalid_target_boxes_after_clip": invalid_after_clip,
             "empty_target_labels": empty_labels,
         }
 
