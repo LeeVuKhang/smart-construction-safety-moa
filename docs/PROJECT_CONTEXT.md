@@ -6,14 +6,16 @@ This document defines the public scope and contract boundaries for the **Control
 Mixture-of-Agents System for Smart Construction Safety Monitoring and Reporting**.
 It is the reference for code and documentation in this repository.
 
-The broader research project studies a region-grounded safety workflow. This initial
-repository intentionally publishes only the Context and Rule/Severity slice plus the
-deterministic routing and typed contracts required to keep those agents safe.
+The broader research project studies a region-grounded safety workflow. This repository
+publishes a small shared camera-frame preprocessing boundary alongside the Context and
+Rule/Severity slice, deterministic routing, and typed contracts required to keep those
+agents safe.
 
 ## 2. Current public boundary
 
 ### Included
 
+- Deterministic preprocessing of one externally supplied camera frame for visual agents.
 - Typed evidence and action contracts.
 - `EvidenceSufficiencyGate`.
 - `ContextAgent` and its provider-neutral adapter boundary.
@@ -26,7 +28,8 @@ deterministic routing and typed contracts required to keep those agents safe.
 
 - Detector training or inference.
 - Person-PPE association and zone-agent implementations.
-- End-to-end image or video ingestion.
+- Camera/RTSP connection, frame sampling, buffering, or end-to-end video ingestion.
+- Detector inference and model-specific tensor normalization.
 - Automatic fulfillment of frame/crop requests.
 - Final orchestration, alert policy, reporting, or external notifications.
 - Model weights, runtime binaries, private media, or benchmark results.
@@ -78,6 +81,7 @@ decision. Those final policies belong to a parent orchestrator.
 
 | Capability | Owner | Boundary |
 | --- | --- | --- |
+| Validate and normalize one externally supplied image frame | `FramePreprocessor` | Does not connect to cameras, enhance evidence, run models, or persist media |
 | Validate evidence sufficiency and authorize Context actions | `EvidenceSufficiencyGate` | Does not call a model or decide an alert |
 | Propose bounded contextual evidence or acquisition requests | `ContextAgent` | Does not rewrite PPE, zone, identity, violation, or severity |
 | Resolve authorized local media | `MediaResolver` | Reads only manifest-authorized files beneath a configured root |
@@ -204,12 +208,14 @@ establish model validation, production readiness, or field readiness.
 
 Changes should preserve these invariants:
 
-1. Stay local-first for the optional Context runtime.
-2. Fail closed on malformed, invented, missing, or unsupported evidence.
-3. Keep `ContextModelAdapter.analyze(ContextRequest) -> ContextProposal` stable unless a
+1. Keep preprocessed pixels deterministic, RGB, and traceable to the source hash.
+2. Keep downstream geometry in source-image coordinates and preserve the letterbox transform.
+3. Stay local-first for the optional Context runtime.
+4. Fail closed on malformed, invented, missing, or unsupported evidence.
+5. Keep `ContextModelAdapter.analyze(ContextRequest) -> ContextProposal` stable unless a
    versioned contract change is approved.
-4. Never let Context rewrite upstream PPE or zone evidence.
-5. Never let Rule run before `READY_FOR_RULE`.
-6. Never create a placeholder `RuleMatch` for request, abstain, review, or rejection.
-7. Do not add cloud APIs, new detector classes, behavior, BIM, or field claims without an
+6. Never let Context rewrite upstream PPE or zone evidence.
+7. Never let Rule run before `READY_FOR_RULE`.
+8. Never create a placeholder `RuleMatch` for request, abstain, review, or rejection.
+9. Do not add cloud APIs, new detector classes, behavior, BIM, or field claims without an
    explicit scope decision and corresponding tests.

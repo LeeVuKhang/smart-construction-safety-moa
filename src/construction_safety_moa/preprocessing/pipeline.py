@@ -4,7 +4,6 @@ import hashlib
 import io
 from datetime import datetime, timezone
 from types import MappingProxyType
-from typing import Any
 
 import numpy as np
 from PIL import Image, ImageOps, ImageStat, UnidentifiedImageError
@@ -106,7 +105,7 @@ class FramePreprocessor:
             raise FramePreprocessingError("INVALID_FRAME_METADATA")
         return parsed.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
 
-    def _decode(self, source_bytes: bytes) -> tuple[Any, str]:
+    def _decode(self, source_bytes: bytes) -> tuple[Image.Image, str]:
         try:
             with Image.open(io.BytesIO(source_bytes)) as verification_image:
                 image_format = str(verification_image.format or "").upper()
@@ -147,7 +146,7 @@ class FramePreprocessor:
             flags.append(EvidenceIssue.LOW_LIGHT)
         return tuple(flags)
 
-    def _letterbox(self, image: Any) -> tuple[Any, ImageTransform]:
+    def _letterbox(self, image: Image.Image) -> tuple[Image.Image, ImageTransform]:
         original_width, original_height = image.size
         target_width, target_height = self.config.target_size
         scale = min(target_width / original_width, target_height / original_height)
@@ -173,7 +172,7 @@ class FramePreprocessor:
         )
         return model_image, transform
 
-    def _read_only_array(self, image: Any) -> RGBArray:
+    def _read_only_array(self, image: Image.Image) -> RGBArray:
         array = np.array(image, dtype=np.uint8, copy=True, order="C")
         array.setflags(write=False)
         return array
