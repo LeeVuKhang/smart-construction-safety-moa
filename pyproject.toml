@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "smart-construction-safety-moa"
+version = "0.1.0"
+description = "Controlled Mixture-of-Agents components for smart-construction safety monitoring and reporting."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Lee Vu Khang" }]
+keywords = [
+    "construction-safety",
+    "mixture-of-agents",
+    "multi-agent-systems",
+    "computer-vision",
+    "safety-monitoring",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = []
+
+[project.optional-dependencies]
+context-pilot = ["Pillow>=10.0"]
+dev = ["ruff>=0.6"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"construction_safety_moa.context" = ["prompt.txt"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]

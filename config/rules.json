@@ -1,0 +1,49 @@
+{
+  "rules": [
+    {
+      "rule_id": "SAFE_HELMET_VISIBLE_001",
+      "description": "Helmet evidence is visible for the person.",
+      "recommended_action": "No action required."
+    },
+    {
+      "rule_id": "PPE_ACTIVE_ZONE_001",
+      "description": "The person is missing helmet evidence in an active work area.",
+      "recommended_action": "Supervisor should verify helmet compliance in the active work area."
+    },
+    {
+      "rule_id": "PPE_RESTRICTED_ZONE_001",
+      "description": "The person is missing helmet evidence inside a restricted zone.",
+      "recommended_action": "Trigger a critical alert and verify restricted-zone access immediately."
+    },
+    {
+      "rule_id": "PPE_HEIGHT_ZONE_001",
+      "description": "The person is missing helmet evidence in a work-at-height zone.",
+      "recommended_action": "Trigger a critical alert and verify work-at-height PPE immediately."
+    },
+    {
+      "rule_id": "PPE_OFFICE_EXCEPTION_001",
+      "description": "No-helmet evidence occurs in a PPE-exempt zone.",
+      "recommended_action": "Do not alert; retain the grounded exception for audit."
+    },
+    {
+      "rule_id": "PPE_UNCERTAIN_REVIEW_001",
+      "description": "Helmet evidence is uncertain in a PPE-controlled zone.",
+      "recommended_action": "Escalate to human review before sending an alert."
+    },
+    {
+      "rule_id": "PPE_UNCERTAIN_LOW_RISK_001",
+      "description": "Helmet evidence is uncertain in a PPE-exempt zone.",
+      "recommended_action": "Retain for review without sending a safety alert."
+    },
+    {
+      "rule_id": "PPE_UNKNOWN_ZONE_001",
+      "description": "No-helmet evidence has no reliable zone grounding.",
+      "recommended_action": "Escalate to human review because zone grounding is unavailable."
+    },
+    {
+      "rule_id": "NO_MATCH_001",
+      "description": "No configured helmet-zone rule applies to the normalized evidence.",
+      "recommended_action": "Take no action and retain the no-match reason for audit."
+    }
+  ]
+}
