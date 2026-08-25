@@ -52,7 +52,7 @@ def raw_frame(data: bytes | None = None, **overrides: object) -> RawCameraFrame:
 
 class TestFramePreprocessor(unittest.TestCase):
     def test_prepares_original_and_letterboxed_rgb_images(self) -> None:
-        source = image_bytes(size=(800, 400), color=(10, 20, 30))
+        source = image_bytes(size=(800, 400), color=(80, 120, 160))
 
         prepared = FramePreprocessor().prepare(raw_frame(source))
 
@@ -70,9 +70,9 @@ class TestFramePreprocessor(unittest.TestCase):
         self.assertTrue(prepared.model_rgb.flags.c_contiguous)
         self.assertFalse(prepared.original_rgb.flags.writeable)
         self.assertFalse(prepared.model_rgb.flags.writeable)
-        np.testing.assert_array_equal(prepared.original_rgb[0, 0], [10, 20, 30])
+        np.testing.assert_array_equal(prepared.original_rgb[0, 0], [80, 120, 160])
         np.testing.assert_array_equal(prepared.model_rgb[0, 0], [114, 114, 114])
-        np.testing.assert_array_equal(prepared.model_rgb[320, 320], [10, 20, 30])
+        np.testing.assert_array_equal(prepared.model_rgb[320, 320], [80, 120, 160])
         self.assertEqual(prepared.transform.original_size, (800, 400))
         self.assertEqual(prepared.transform.model_size, (640, 640))
         self.assertAlmostEqual(prepared.transform.scale, 0.8)
