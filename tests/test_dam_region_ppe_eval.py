@@ -20,6 +20,10 @@ class DamRegionPpeEvalTests(unittest.TestCase):
         result = parse_prediction("The worker is not wearing a helmet.")
         self.assertEqual(result["label"], "no_helmet")
 
+    def test_parse_prediction_rejects_schema_enum_label(self):
+        result = parse_prediction('{"label":"person|helmet|no_helmet|other","confidence":0.0,"reason":"schema"}')
+        self.assertEqual(result["label"], "unknown")
+
 
 if __name__ == "__main__":
     unittest.main()

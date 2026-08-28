@@ -31,13 +31,14 @@ from src.data.audit_dataset import (
 TARGET_CLASSES = ["person", "helmet", "no_helmet"]
 VALID_PREDICTIONS = TARGET_CLASSES + ["other", "unknown"]
 DEFAULT_PROMPT = """
-You are evaluating construction-site PPE from a masked image region.
-Answer with JSON only:
-{"label": "person|helmet|no_helmet|other", "confidence": 0.0-1.0, "reason": "..."}
-Use "person" only for a visible worker/person body region.
-Use "helmet" only for a safety helmet region.
-Use "no_helmet" only when the masked region clearly indicates a worker/head without a safety helmet.
-Use "other" if the region is not one of these classes or is ambiguous.
+Classify only the visible alpha-mask region in this construction-site image.
+Return exactly one compact JSON object. Do not return Markdown or prose.
+Allowed labels are exactly: person, helmet, no_helmet, other.
+Use this format: {"label":"person","confidence":0.0,"reason":"short reason"}
+If the mask covers a full worker/person body, choose person even when a helmet is visible.
+If the mask covers only a safety helmet or hard hat, choose helmet.
+If the mask covers a worker head/body where no safety helmet is visible, choose no_helmet.
+If the masked region is ambiguous or outside these classes, choose other.
 """.strip()
 
 
@@ -146,6 +147,7 @@ def parse_prediction(text: str) -> dict:
     """Parse a DAM response into a target label with conservative fallbacks."""
     parsed: dict = {"label": "unknown", "confidence": None, "reason": text}
     json_match = re.search(r"\{.*\}", text, flags=re.DOTALL)
+    fallback_text = text
     if json_match:
         try:
             candidate = json.loads(json_match.group(0))
@@ -154,10 +156,11 @@ def parse_prediction(text: str) -> dict:
                 parsed.update(candidate)
                 parsed["label"] = label
                 return parsed
+            fallback_text = str(candidate.get("reason", ""))
         except json.JSONDecodeError:
             pass
 
-    lowered = text.lower()
+    lowered = fallback_text.lower()
     if "no helmet" in lowered or "without a helmet" in lowered or "not wearing a helmet" in lowered:
         parsed["label"] = "no_helmet"
     elif "helmet" in lowered or "hard hat" in lowered or "hardhat" in lowered:
