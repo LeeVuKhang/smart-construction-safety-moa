@@ -194,6 +194,14 @@ unknown
 
 This prompt-zone task must be evaluated with labeled image-level zone examples. The previous DAM PPE semantic experiment is not evidence for or against prompt-based zone recognition.
 
+Server smoke test:
+
+| Image | Predicted zone ID | Predicted zone type | Confidence | Runtime |
+| --- | --- | --- | ---: | ---: |
+| `data/processed/images/val/image1010.jpg` | `Z01` | `active_work_area` | 0.8000 | 2.44 s |
+
+This confirms the implemented input/output path for the intended task. It is not an accuracy result because the image does not yet have a human-labeled expected background zone.
+
 ## 14. Describe Anything PPE Semantic Appendix
 
 Describe Anything Model (DAM-3B from `NVlabs/describe-anything`) was evaluated separately as a region-level semantic classifier because DAM is a detailed localized captioning model, not an end-to-end object detector.

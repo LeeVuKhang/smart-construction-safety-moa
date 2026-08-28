@@ -1,0 +1,2 @@
+sample_id,image_path,expected_zone_type,predicted_zone_id,predicted_zone_type,confidence,raw_response
+image_0001,data/processed/images/val/image1010.jpg,,Z01,active_work_area,0.8,"{ ""zone_type"": ""active_work_area"", ""confidence"": 0.8, ""reason"": ""Working in the area"" }"

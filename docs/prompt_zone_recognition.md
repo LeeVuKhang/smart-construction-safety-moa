@@ -76,3 +76,22 @@ Prompt-based zone recognition and polygon zone grounding are different tasks:
 | Fixed-camera person zone grounding | person bbox + configured polygons | exact zone ID | deterministic polygon method |
 
 The previous DAM PPE classification experiment is not the right evidence for this zone task. For this task, evidence must come from labeled images with expected background zone labels.
+
+## Server Smoke Test
+
+The evaluator was run on `quyhv-server` with DAM-3B loaded from cache.
+
+Input:
+
+```text
+image: data/processed/images/val/image1010.jpg
+prompt: default prompt in src/evaluation/dam_prompt_zone_eval.py
+```
+
+Output:
+
+| Image | Predicted zone ID | Predicted zone type | Confidence | Runtime |
+| --- | --- | --- | ---: | ---: |
+| `image1010.jpg` | `Z01` | `active_work_area` | 0.8000 | 2.44 s |
+
+This is a functional smoke test, not an accuracy benchmark, because the sample does not yet have a human-labeled expected background zone.
