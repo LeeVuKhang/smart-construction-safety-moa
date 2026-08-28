@@ -58,7 +58,7 @@ def save_zone_results(
     rows = [asdict(assignment) for assignment in assignments]
     with (output_dir / "zone_results.csv").open("w", newline="", encoding="utf-8") as file:
         fieldnames = ["person_id", "zone_id", "zone_type", "source", "anchor_point"]
-        writer = csv.DictWriter(file, fieldnames=fieldnames)
+        writer = csv.DictWriter(file, fieldnames=fieldnames, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 
