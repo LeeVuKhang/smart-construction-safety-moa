@@ -34,7 +34,8 @@ DEFAULT_PROMPT = """
 Classify only the visible alpha-mask region in this construction-site image.
 Return exactly one compact JSON object. Do not return Markdown or prose.
 Allowed labels are exactly: person, helmet, no_helmet, other.
-Use this format: {"label":"person","confidence":0.0,"reason":"short reason"}
+The JSON keys must be label, confidence, and reason.
+Do not copy the allowed-label list as the label value.
 If the mask covers a full worker/person body, choose person even when a helmet is visible.
 If the mask covers only a safety helmet or hard hat, choose helmet.
 If the mask covers a worker head/body where no safety helmet is visible, choose no_helmet.
