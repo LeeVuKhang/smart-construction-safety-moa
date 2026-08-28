@@ -178,12 +178,17 @@ def save_experiment_manifest(
         json.dump(manifest, file, indent=2)
 
 
+def experiment_dir_for(config: dict) -> Path:
+    """Return the absolute standardized experiment directory."""
+    return (Path(config["output_dir"]).resolve() / config["experiment_name"])
+
+
 def train(config: dict) -> Path:
     """Train YOLO using configured parameters and return the result directory."""
     validate_config(config)
     set_seed(int(config["seed"]))
 
-    experiment_dir = Path(config["output_dir"]) / config["experiment_name"]
+    experiment_dir = experiment_dir_for(config)
     audit = audit_dataset(
         Path(config["dataset_yaml"]),
         Path("results/dataset_audit"),
@@ -208,7 +213,7 @@ def train(config: dict) -> Path:
         seed=config["seed"],
         workers=config["workers"],
         optimizer=config["optimizer"],
-        project=config["output_dir"],
+        project=str(Path(config["output_dir"]).resolve()),
         name=config["experiment_name"],
         device=_device_arg(config["device"]),
         exist_ok=True,

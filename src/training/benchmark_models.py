@@ -13,7 +13,7 @@ import torch
 from ultralytics import YOLO
 
 from src.evaluation.detection_metrics import calculate_f1, metrics_from_yolo
-from src.training.train_yolo import load_config, train, validate_config
+from src.training.train_yolo import experiment_dir_for, load_config, train, validate_config
 
 
 FAIRNESS_FIELDS = [
@@ -61,7 +61,7 @@ def benchmark_configs(
 
     rows = []
     for config in configs:
-        experiment_dir = Path(config["output_dir"]) / config["experiment_name"]
+        experiment_dir = experiment_dir_for(config)
         weights = experiment_dir / "weights" / "best.pt"
 
         if train_missing and not weights.exists():
