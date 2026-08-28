@@ -115,6 +115,17 @@ Output:
 
 | Image | Predicted zone ID | Predicted zone type | Confidence | Runtime |
 | --- | --- | --- | ---: | ---: |
-| `image1010.jpg` | `Z01` | `active_work_area` | 0.8000 | 2.44 s |
+| `image1010.jpg` | `Z00` | `general_area` | 0.0000 | 5.45 s |
+
+DAM response:
+
+```json
+{
+  "zone_id": "Z00",
+  "zone_type": "general_area",
+  "confidence": 0.0,
+  "reason": "No evidence of restricted area."
+}
+```
 
 This is a functional smoke test, not an accuracy benchmark, because the sample does not yet have a human-labeled expected background zone.

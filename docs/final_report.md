@@ -200,7 +200,7 @@ Server smoke test:
 
 | Image | Predicted zone ID | Predicted zone type | Confidence | Runtime |
 | --- | --- | --- | ---: | ---: |
-| `data/processed/images/val/image1010.jpg` | `Z01` | `active_work_area` | 0.8000 | 2.44 s |
+| `data/processed/images/val/image1010.jpg` | `Z00` | `general_area` | 0.0000 | 5.45 s |
 
 This confirms the implemented input/output path for the intended task. It is not an accuracy result because the image does not yet have a human-labeled expected background zone.
 
