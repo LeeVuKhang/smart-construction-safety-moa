@@ -20,6 +20,14 @@ class DamRegionPpeEvalTests(unittest.TestCase):
         result = parse_prediction("The worker is not wearing a helmet.")
         self.assertEqual(result["label"], "no_helmet")
 
+    def test_parse_prediction_ambiguous_keywords_are_unknown(self):
+        result = parse_prediction("[person, helmet]")
+        self.assertEqual(result["label"], "unknown")
+
+    def test_parse_prediction_boolean_json(self):
+        result = parse_prediction('{"person": true, "helmet": false, "no_helmet": false}')
+        self.assertEqual(result["label"], "person")
+
     def test_parse_prediction_rejects_schema_enum_label(self):
         result = parse_prediction('{"label":"person|helmet|no_helmet|other","confidence":0.0,"reason":"schema"}')
         self.assertEqual(result["label"], "unknown")

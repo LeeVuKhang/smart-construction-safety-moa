@@ -157,6 +157,11 @@ def parse_prediction(text: str) -> dict:
                 parsed.update(candidate)
                 parsed["label"] = label
                 return parsed
+            true_labels = [class_name for class_name in TARGET_CLASSES if candidate.get(class_name) is True]
+            if len(true_labels) == 1:
+                parsed.update(candidate)
+                parsed["label"] = true_labels[0]
+                return parsed
             fallback_text = str(candidate.get("reason", ""))
         except json.JSONDecodeError:
             pass
@@ -164,12 +169,17 @@ def parse_prediction(text: str) -> dict:
     lowered = fallback_text.lower()
     if "no helmet" in lowered or "without a helmet" in lowered or "not wearing a helmet" in lowered:
         parsed["label"] = "no_helmet"
-    elif "helmet" in lowered or "hard hat" in lowered or "hardhat" in lowered:
-        parsed["label"] = "helmet"
-    elif "person" in lowered or "worker" in lowered:
-        parsed["label"] = "person"
-    elif "other" in lowered:
-        parsed["label"] = "other"
+        return parsed
+
+    mentions = []
+    if "helmet" in lowered or "hard hat" in lowered or "hardhat" in lowered:
+        mentions.append("helmet")
+    if "person" in lowered or "worker" in lowered:
+        mentions.append("person")
+    if "other" in lowered:
+        mentions.append("other")
+    if len(mentions) == 1:
+        parsed["label"] = mentions[0]
     return parsed
 
 
