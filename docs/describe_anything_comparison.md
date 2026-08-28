@@ -106,8 +106,54 @@ The selected detector is YOLO11n:
 
 DAM comparison results should be reported under a separate "Region-level semantic PPE classification" section, not merged into the YOLO mAP table.
 
+## Region-Level DAM Result
+
+Run environment:
+
+- Server: `quyhv-server`
+- DAM source repository commit: `153ad3d`
+- DAM model: `nvidia/DAM-3B`
+- Evaluation split: validation
+- Evaluated regions: first 100 ground-truth YOLO boxes
+- Runtime: 2:17.24 for 100 region requests
+- DAM server GPU memory during evaluation: approximately 7.5 GB on one Tesla T4
+
+Aggregate result:
+
+| Model | Evaluation type | Regions | Accuracy | Runtime |
+| --- | --- | ---: | ---: | ---: |
+| YOLO11n | End-to-end object detection | full validation split | mAP50-95 0.3557 | 8.49 ms/image |
+| DAM-3B | Ground-truth-region semantic classification | 100 regions | 0.1900 | 2:17.24 total |
+
+DAM per-class result:
+
+| Class | Precision | Recall | F1 | Support |
+| --- | ---: | ---: | ---: | ---: |
+| `person` | 0.4318 | 0.4043 | 0.4176 | 47 |
+| `helmet` | 0.0000 | 0.0000 | 0.0000 | 42 |
+| `no_helmet` | 0.0000 | 0.0000 | 0.0000 | 11 |
+
+Prediction distribution:
+
+| Prediction | Count |
+| --- | ---: |
+| `unknown` | 51 |
+| `person` | 44 |
+| `no_helmet` | 4 |
+| `helmet` | 1 |
+
+Confusion matrix:
+
+| Ground truth | person | helmet | no_helmet | other | unknown |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `person` | 19 | 1 | 0 | 0 | 27 |
+| `helmet` | 14 | 0 | 4 | 0 | 24 |
+| `no_helmet` | 11 | 0 | 0 | 0 | 0 |
+
+Interpretation: DAM-3B did not work well as a closed-set PPE region classifier under this protocol. It often returned descriptive or coordinate-like outputs instead of a stable class label, so the evaluator uses a conservative parser and records unsupported responses as `unknown`. This result supports keeping YOLO11n as the selected baseline detector.
+
 ## Status
 
 - Comparison protocol: prepared.
 - Evaluation client: `src/evaluation/dam_region_ppe_eval.py`.
-- Actual DAM metrics: pending until the DAM server and `nvidia/DAM-3B` weights are available on the evaluation machine.
+- Actual DAM metrics: completed for the first 100 validation regions.

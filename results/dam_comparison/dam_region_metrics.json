@@ -1,0 +1,47 @@
+{
+  "total_regions": 100,
+  "accuracy": 0.19,
+  "per_class": {
+    "person": {
+      "precision": 0.4318181818181818,
+      "recall": 0.40425531914893614,
+      "f1": 0.41758241758241754,
+      "support": 47
+    },
+    "helmet": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 42
+    },
+    "no_helmet": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 11
+    }
+  },
+  "confusion": {
+    "person": {
+      "person": 19,
+      "helmet": 1,
+      "no_helmet": 0,
+      "other": 0,
+      "unknown": 27
+    },
+    "helmet": {
+      "person": 14,
+      "helmet": 0,
+      "no_helmet": 4,
+      "other": 0,
+      "unknown": 24
+    },
+    "no_helmet": {
+      "person": 11,
+      "helmet": 0,
+      "no_helmet": 0,
+      "other": 0,
+      "unknown": 0
+    }
+  }
+}

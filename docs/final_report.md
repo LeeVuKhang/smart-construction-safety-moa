@@ -156,15 +156,43 @@ Justification:
 
 YOLO11s is marginally faster in this latency run, but its accuracy and especially `no_helmet` recall are substantially worse. YOLO11m is larger and slower while not improving the primary metric.
 
-## 12. Unresolved Issues
+## 12. Describe Anything Comparison
+
+Describe Anything Model (DAM-3B from `NVlabs/describe-anything`) was evaluated separately as a region-level semantic classifier because DAM is a detailed localized captioning model, not an end-to-end object detector.
+
+Protocol:
+
+- Use validation ground-truth YOLO boxes as DAM mask prompts.
+- Ask DAM to classify each region as `person`, `helmet`, `no_helmet`, or `other`.
+- Parse responses conservatively and count unsupported outputs as `unknown`.
+
+Result on the first 100 validation regions:
+
+| Model | Evaluation type | Regions | Accuracy | Runtime |
+| --- | --- | ---: | ---: | ---: |
+| YOLO11n | End-to-end object detection | full validation split | mAP50-95 0.3557 | 8.49 ms/image |
+| DAM-3B | Ground-truth-region semantic classification | 100 regions | 0.1900 | 2:17.24 total |
+
+DAM per-class metrics:
+
+| Class | Precision | Recall | F1 | Support |
+| --- | ---: | ---: | ---: | ---: |
+| `person` | 0.4318 | 0.4043 | 0.4176 | 47 |
+| `helmet` | 0.0000 | 0.0000 | 0.0000 | 42 |
+| `no_helmet` | 0.0000 | 0.0000 | 0.0000 | 11 |
+
+Conclusion: DAM-3B is not competitive with YOLO11n for this PPE monitoring baseline. Even when localization is supplied by ground-truth boxes, DAM did not reliably return the closed-set PPE labels needed by the rule engine.
+
+## 13. Unresolved Issues
 
 - `no_helmet` remains the smallest class with 485 target boxes and only 45 validation instances.
 - Source labels required boundary clipping during preparation.
 - Ultralytics removed one duplicate label from `image187.jpg` during training.
 - Construction-PPE is a small baseline dataset; broader validation on additional construction scenes is still needed before safety-critical use.
 - Benchmark latency was measured on one Tesla T4 and may differ on deployment hardware.
+- DAM-3B was evaluated on the first 100 validation regions, not the full validation region set, because it is a text-generation model and each region requires a separate request.
 
-## 13. Reproduction Commands
+## 14. Reproduction Commands
 
 ```bash
 cd /data/quyhv/data/Construction-Safety-Monitoring
@@ -175,6 +203,12 @@ bash scripts/train_all.sh
 python3 -m src.training.benchmark_models \
   --configs configs/models/yolo11n.yaml configs/models/yolo11s.yaml configs/models/yolo11m.yaml \
   --output-dir results/benchmarks
+python3 -m src.evaluation.dam_region_ppe_eval \
+  --dataset-yaml data/processed/dataset.yaml \
+  --split val \
+  --server-url http://localhost:8000 \
+  --max-samples 100 \
+  --output-dir results/dam_comparison
 ```
 
 The selected detector config is written only after benchmarking:
