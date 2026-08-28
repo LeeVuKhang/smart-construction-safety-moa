@@ -175,3 +175,5 @@ Zones are fixed polygons configured manually for each camera under `configs/zone
 Zone Grounding does not check PPE, evaluate rules, trigger alerts, or perform behavior/MoA reasoning.
 
 The zone comparison and fixture evaluation are documented in `docs/zone_grounding_comparison.md`.
+
+For the prompt-based variant where the input is one image plus a text prompt and the output is a background zone label, see `docs/prompt_zone_recognition.md` and `src/evaluation/dam_prompt_zone_eval.py`.

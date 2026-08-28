@@ -158,7 +158,7 @@ YOLO11s is marginally faster in this latency run, but its accuracy and especiall
 
 ## 12. Zone Grounding Evaluation
 
-The zone component is evaluated as spatial grounding, not PPE classification:
+The deterministic zone-grounding component is evaluated as spatial grounding, not PPE classification:
 
 ```text
 person bbox + fixed camera zone polygons -> zone_id
@@ -173,9 +173,28 @@ Zone grounding result:
 | Deterministic polygon grounding | person bbox + camera polygons | configured zone ID | 1.0000 | 0.2500 |
 | DAM-3B | image/masked region -> text | free-form localized description | not directly applicable | not directly applicable |
 
-Correct zone conclusion: the deterministic polygon method is the baseline for this component because fixed-camera safety zones are explicit configured geometry. DAM is a localized captioning model and does not natively output configured zone IDs from polygon membership.
+Correct conclusion for this subtask: the deterministic polygon method is the baseline for person-to-zone assignment because fixed-camera safety zones are explicit configured geometry.
 
-## 13. Describe Anything PPE Semantic Appendix
+## 13. Prompt-Based Background Zone Recognition
+
+There is a second zone-related task where the input is one image plus a text prompt, and the output is a semantic background zone label:
+
+```text
+image + prompt -> zone_type / zone_id
+```
+
+For that task, DAM-3B is a valid VLM-style baseline because it can describe a selected image region. The project now includes `src/evaluation/dam_prompt_zone_eval.py`, which sends the full image as the selected region and prompts DAM to choose one of:
+
+```text
+general_area
+active_work_area
+restricted_area
+unknown
+```
+
+This prompt-zone task must be evaluated with labeled image-level zone examples. The previous DAM PPE semantic experiment is not evidence for or against prompt-based zone recognition.
+
+## 14. Describe Anything PPE Semantic Appendix
 
 Describe Anything Model (DAM-3B from `NVlabs/describe-anything`) was evaluated separately as a region-level semantic classifier because DAM is a detailed localized captioning model, not an end-to-end object detector.
 
@@ -202,7 +221,7 @@ DAM per-class metrics:
 
 Conclusion for this appendix: DAM-3B did not reliably return the closed-set PPE labels needed by the PPE evidence path. This is separate from the zone-grounding result above.
 
-## 14. Unresolved Issues
+## 15. Unresolved Issues
 
 - `no_helmet` remains the smallest class with 485 target boxes and only 45 validation instances.
 - Source labels required boundary clipping during preparation.
@@ -210,8 +229,9 @@ Conclusion for this appendix: DAM-3B did not reliably return the closed-set PPE 
 - Construction-PPE is a small baseline dataset; broader validation on additional construction scenes is still needed before safety-critical use.
 - Benchmark latency was measured on one Tesla T4 and may differ on deployment hardware.
 - DAM-3B was evaluated on the first 100 validation regions, not the full validation region set, because it is a text-generation model and each region requires a separate request.
+- Prompt-based background zone recognition still needs labeled image-level zone examples before accuracy can be reported.
 
-## 15. Reproduction Commands
+## 16. Reproduction Commands
 
 ```bash
 cd /data/quyhv/data/Construction-Safety-Monitoring
@@ -233,6 +253,10 @@ python3 -m src.evaluation.dam_region_ppe_eval \
   --server-url http://localhost:8000 \
   --max-samples 100 \
   --output-dir results/dam_comparison
+python3 -m src.evaluation.dam_prompt_zone_eval \
+  --image data/processed/images/val/image1010.jpg \
+  --server-url http://localhost:8000 \
+  --output-dir results/dam_zone_prompt
 ```
 
 The selected detector config is written only after benchmarking:

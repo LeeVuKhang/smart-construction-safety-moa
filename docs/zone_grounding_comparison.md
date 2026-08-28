@@ -1,6 +1,6 @@
 # Zone Grounding Comparison
 
-This document covers the zone component only.
+This document covers the deterministic person-to-zone component only. For the variant where the input is one image plus a prompt and the expected output is a semantic background zone label, see `docs/prompt_zone_recognition.md`.
 
 ## Task Boundary
 
@@ -46,10 +46,10 @@ python3 -m src.evaluation.zone_metrics \
 | Method | Input | Output | Zone assignment accuracy | Default zone rate |
 | --- | --- | --- | ---: | ---: |
 | Deterministic polygon grounding | person bbox + camera polygons | configured zone ID | 1.0000 | 0.2500 |
-| DAM-3B | image/masked region -> text | free-form localized description | not directly applicable | not directly applicable |
+| DAM-3B | image/masked region -> text | free-form localized description | different task | different task |
 
-The evidence for the zone module is therefore not that DAM is worse at PPE classification. The evidence is that the current zone problem is a fixed-camera spatial grounding problem with exact configured polygons, while DAM is a detailed localized captioning model and does not natively output configured zone IDs from polygon membership.
+The evidence for this deterministic zone module is therefore not that DAM is worse at PPE classification. The evidence is that this specific module solves fixed-camera spatial grounding with exact configured polygons. The prompt-based background zone task should be evaluated separately with labeled images and a VLM/DAM-style baseline.
 
 ## Correct Conclusion
 
-For the zone component, the deterministic polygon method is the correct baseline because it is exact, reproducible, fast, and directly tied to the camera's configured safety zones. DAM can be discussed as a possible future semantic context component, but it is not a replacement for deterministic zone grounding unless an additional prompt-to-zone parser and camera calibration protocol are defined and evaluated.
+For fixed-camera person-to-zone assignment, the deterministic polygon method is the correct baseline because it is exact, reproducible, fast, and directly tied to the camera's configured safety zones. For image-plus-prompt background zone recognition, use the separate DAM prompt-zone evaluator.
