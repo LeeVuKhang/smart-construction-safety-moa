@@ -105,12 +105,28 @@ def parse_zone_prediction(text: str) -> dict:
             fallback_text = str(candidate.get("reason", ""))
         except json.JSONDecodeError:
             pass
+    else:
+        zone_match = re.search(r'"?zone_type"?\s*:\s*"?([a-zA-Z_\- ]+)"?', text)
+        if zone_match:
+            zone_type = normalize_zone_type(zone_match.group(1))
+            if zone_type in VALID_ZONE_TYPES:
+                parsed["zone_type"] = zone_type
+                parsed["zone_id"] = zone_id_for_type(zone_type)
+                confidence_match = re.search(r'"?confidence"?\s*:\s*([0-9.]+)', text)
+                if confidence_match:
+                    parsed["confidence"] = float(confidence_match.group(1))
+                return parsed
 
     lowered = fallback_text.lower()
     mentions = []
     if "restricted" in lowered or "hazard" in lowered or "danger" in lowered:
         mentions.append("restricted_area")
-    if "active work" in lowered or "work zone" in lowered or "construction work" in lowered:
+    if (
+        "active work" in lowered
+        or "work zone" in lowered
+        or "construction work" in lowered
+        or "construction area" in lowered
+    ):
         mentions.append("active_work_area")
     if "general" in lowered or "ordinary" in lowered or "public" in lowered:
         mentions.append("general_area")

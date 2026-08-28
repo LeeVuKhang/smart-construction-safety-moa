@@ -24,6 +24,13 @@ class DamPromptZoneEvalTests(unittest.TestCase):
         result = parse_zone_prediction("The background appears to be a general access area.")
         self.assertEqual(result["zone_id"], "Z00")
 
+    def test_parse_truncated_json_zone_type(self):
+        result = parse_zone_prediction(
+            '{ "zone_type": "active_work_area", "confidence": 0.8, "reason": "construction area"'
+        )
+        self.assertEqual(result["zone_id"], "Z01")
+        self.assertEqual(result["confidence"], 0.8)
+
 
 if __name__ == "__main__":
     unittest.main()
