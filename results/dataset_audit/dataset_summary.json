@@ -1,0 +1,53 @@
+{
+  "dataset_yaml": "data/processed/dataset.yaml",
+  "dataset_root": "/data/quyhv/data/Construction-Safety-Monitoring/data/processed",
+  "classes": [
+    "person",
+    "helmet",
+    "no_helmet"
+  ],
+  "image_counts": {
+    "train": 1132,
+    "val": 143,
+    "test": 141
+  },
+  "total_images": 1416,
+  "total_boxes": 4464,
+  "bbox_count_per_class": {
+    "person": 2245,
+    "helmet": 1734,
+    "no_helmet": 485
+  },
+  "image_count_per_class": {
+    "person": 1339,
+    "helmet": 1047,
+    "no_helmet": 283
+  },
+  "missing_labels": [],
+  "orphan_labels": [],
+  "corrupt_images": [],
+  "invalid_bboxes": [],
+  "bbox_outside_image_boundaries": [],
+  "unknown_class_ids": [],
+  "empty_label_files": [
+    "/data/quyhv/data/Construction-Safety-Monitoring/data/processed/labels/train/image1171.txt",
+    "/data/quyhv/data/Construction-Safety-Monitoring/data/processed/labels/train/image475.txt",
+    "/data/quyhv/data/Construction-Safety-Monitoring/data/processed/labels/train/image479.txt",
+    "/data/quyhv/data/Construction-Safety-Monitoring/data/processed/labels/train/image482.txt",
+    "/data/quyhv/data/Construction-Safety-Monitoring/data/processed/labels/train/image526.txt",
+    "/data/quyhv/data/Construction-Safety-Monitoring/data/processed/labels/train/image566.txt",
+    "/data/quyhv/data/Construction-Safety-Monitoring/data/processed/labels/train/image57.txt",
+    "/data/quyhv/data/Construction-Safety-Monitoring/data/processed/labels/train/image720.txt",
+    "/data/quyhv/data/Construction-Safety-Monitoring/data/processed/labels/train/image734.txt",
+    "/data/quyhv/data/Construction-Safety-Monitoring/data/processed/labels/train/image818.txt",
+    "/data/quyhv/data/Construction-Safety-Monitoring/data/processed/labels/train/image849.txt",
+    "/data/quyhv/data/Construction-Safety-Monitoring/data/processed/labels/test/image714.txt"
+  ],
+  "duplicate_image_filenames": {},
+  "duplicate_images": {},
+  "cross_split_duplicates": [],
+  "possible_source_leakage": [],
+  "class_imbalance_ratio": 4.628865979381444,
+  "critical_errors": [],
+  "warnings": []
+}

@@ -1,0 +1,7 @@
+model_name: yolo11n
+weights: results/training/yolo11n_v1/weights/best.pt
+selection_basis:
+  primary_metric: mAP50-95
+  secondary_metric: recall
+  efficiency_metric: latency
+  rule: prefer smaller/faster model when mAP50-95 gain is within 0.01

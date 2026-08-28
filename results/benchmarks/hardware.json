@@ -1,0 +1,13 @@
+{
+  "platform": "Linux-5.15.0-171-generic-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "torch": "2.4.1+cu121",
+  "cuda_available": true,
+  "cuda_device_count": 4,
+  "cuda_devices": [
+    "Tesla T4",
+    "Tesla T4",
+    "Tesla T4",
+    "Tesla T4"
+  ]
+}
