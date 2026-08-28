@@ -130,9 +130,9 @@ results/benchmarks/per_class_metrics.csv
 
 | Model | Params | Size | Precision | Recall | F1 | mAP50 | mAP50-95 | Latency | FPS |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| YOLO11n | 2,582,737 | 5.23 MB | 0.7167 | 0.7875 | 0.7505 | 0.7353 | 0.3557 | 10.20 ms | 97.99 |
-| YOLO11s | 9,413,961 | 18.30 MB | 0.7643 | 0.6548 | 0.7053 | 0.6163 | 0.3143 | 9.99 ms | 100.08 |
-| YOLO11m | 20,032,345 | 38.65 MB | 0.7476 | 0.6907 | 0.7181 | 0.6488 | 0.3279 | 22.42 ms | 44.59 |
+| YOLO11n | 2,582,737 | 5.23 MB | 0.7167 | 0.7875 | 0.7505 | 0.7353 | 0.3557 | 8.49 ms | 117.79 |
+| YOLO11s | 9,413,961 | 18.30 MB | 0.7643 | 0.6548 | 0.7053 | 0.6163 | 0.3143 | 9.93 ms | 100.66 |
+| YOLO11m | 20,032,345 | 38.65 MB | 0.7476 | 0.6907 | 0.7181 | 0.6488 | 0.3279 | 21.91 ms | 45.64 |
 
 Per-class `no_helmet` recall:
 
@@ -152,7 +152,7 @@ Justification:
 - Highest aggregate recall: 0.7875.
 - Highest `no_helmet` recall: 0.6222.
 - Smallest model: 5.23 MB.
-- Efficient latency: 10.20 ms/image on the measured Tesla T4.
+- Efficient latency: 8.49 ms/image on the measured Tesla T4.
 
 YOLO11s is marginally faster in this latency run, but its accuracy and especially `no_helmet` recall are substantially worse. YOLO11m is larger and slower while not improving the primary metric.
 
