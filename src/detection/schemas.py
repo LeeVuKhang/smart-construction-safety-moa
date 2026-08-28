@@ -36,3 +36,15 @@ class ZoneAssignment:
     zone_type: str
     source: str
     anchor_point: Point
+
+
+@dataclass(frozen=True)
+class ZoneRecognition:
+    """Frame-level background zone predicted from image context."""
+
+    zone_id: str
+    zone_type: str
+    confidence: float | None
+    source: str
+    reason: str
+    raw_response: str = ""

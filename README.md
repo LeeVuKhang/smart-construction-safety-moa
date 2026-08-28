@@ -22,6 +22,18 @@ The detector performs perception only. PPE evidence, zone grounding, and future 
 Input Image / Video Frame
         |
         v
+DAM Prompt-Zone Agent
+        |
+        v
+Background Zone
+```
+
+When person-level PPE evidence is also needed, YOLO11 remains the detector:
+
+```text
+Input Image / Video Frame
+        |
+        v
 YOLO11 Detector
         |
         v
@@ -29,9 +41,9 @@ Structured Detections
         |
  ┌─────────────────┬─────────────────────┐
  v                 v
-PPE Agent      Zone Grounding Agent
+PPE Agent      DAM Prompt-Zone Agent
  v                 v
-PPE Evidence    Region Grounding
+PPE Evidence    Background Zone
 ```
 
 Future modules are not implemented yet:
@@ -170,9 +182,22 @@ results/benchmarks/per_class_metrics.csv
 
 ## Zone Grounding
 
-Zones are fixed polygons configured manually for each camera under `configs/zones/`. A person is assigned using the bottom-center anchor of the person bounding box. If multiple polygons contain the anchor, the highest-priority zone wins. If no polygon contains the anchor, the person is assigned to `default_zone`.
+The active zone mode is DAM prompt-based background zone recognition:
 
-Zone Grounding does not check PPE, evaluate rules, trigger alerts, or perform behavior/MoA reasoning.
+```text
+image + prompt -> zone_id / zone_type
+```
+
+Run one image through the DAM zone evaluator:
+
+```bash
+python -m src.evaluation.dam_prompt_zone_eval \
+  --image data/processed/images/val/image1010.jpg \
+  --zone-config configs/zones/cam_01.yaml \
+  --server-url http://localhost:8000
+```
+
+The older deterministic polygon mode remains available for fixed-camera person-to-zone assignment. It uses manually configured polygons under `configs/zones/`, bottom-center person anchors, overlap priority, and a default zone fallback.
 
 The zone comparison and fixture evaluation are documented in `docs/zone_grounding_comparison.md`.
 

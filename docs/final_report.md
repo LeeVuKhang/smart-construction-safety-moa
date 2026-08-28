@@ -183,7 +183,7 @@ There is a second zone-related task where the input is one image plus a text pro
 image + prompt -> zone_type / zone_id
 ```
 
-For that task, DAM-3B is a valid VLM-style baseline because it can describe a selected image region. The project now includes `src/evaluation/dam_prompt_zone_eval.py`, which sends the full image as the selected region and prompts DAM to choose one of:
+For that task, DAM-3B is a valid VLM-style baseline because it can describe a selected image region. The project now includes `src/agents/dam_zone_agent.py` and `src/evaluation/dam_prompt_zone_eval.py`, which send the full image as the selected region and prompt DAM to choose one of the configured zone labels:
 
 ```text
 general_area
@@ -193,6 +193,8 @@ unknown
 ```
 
 This prompt-zone task must be evaluated with labeled image-level zone examples. The previous DAM PPE semantic experiment is not evidence for or against prompt-based zone recognition.
+
+The main pipeline now supports `--zone-mode dam_prompt` and returns a frame-level `background_zone` prediction from DAM. When YOLO person detections are also present, the predicted background zone can be attached to each person assignment with source `dam_prompt` for downstream rule joining.
 
 Server smoke test:
 

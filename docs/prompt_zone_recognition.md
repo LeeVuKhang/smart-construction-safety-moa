@@ -20,6 +20,15 @@ The current configured zone vocabulary is:
 
 Describe Anything Model can be used for this prompt-based zone task because it accepts an image region and returns text. For background-zone recognition, the full image is sent as the selected region and the prompt asks for one configured zone label.
 
+The implemented agent is `src/agents/dam_zone_agent.py`. It reads the configured zone IDs, zone types, and semantic descriptions from `configs/zones/cam_01.yaml`, builds a constrained prompt, sends the full image to DAM, and parses the response into:
+
+```text
+zone_id
+zone_type
+confidence
+reason
+```
+
 Run DAM server:
 
 ```bash
@@ -41,6 +50,7 @@ Classify one image:
 ```bash
 python3 -m src.evaluation.dam_prompt_zone_eval \
   --image data/processed/images/val/image1010.jpg \
+  --zone-config configs/zones/cam_01.yaml \
   --server-url http://localhost:8000 \
   --output-dir results/dam_zone_prompt
 ```
@@ -50,8 +60,21 @@ Evaluate a labeled manifest:
 ```bash
 python3 -m src.evaluation.dam_prompt_zone_eval \
   --manifest data/zone_eval/prompt_zone_manifest.json \
+  --zone-config configs/zones/cam_01.yaml \
   --server-url http://localhost:8000 \
   --output-dir results/dam_zone_prompt
+```
+
+Run the full baseline pipeline with DAM as the zone module:
+
+```bash
+python3 -m src.pipeline.baseline_pipeline \
+  --image data/processed/images/val/image1010.jpg \
+  --weights results/training/yolo11n_v1/weights/best.pt \
+  --config configs/models/yolo11n.yaml \
+  --zone-config configs/zones/cam_01.yaml \
+  --zone-mode dam_prompt \
+  --dam-server-url http://localhost:8000
 ```
 
 Manifest format:
@@ -72,7 +95,7 @@ Prompt-based zone recognition and polygon zone grounding are different tasks:
 
 | Task | Input | Output | Best baseline |
 | --- | --- | --- | --- |
-| Prompt-based background zone recognition | image + prompt | semantic zone label | VLM/DAM-style baseline |
+| Prompt-based background zone recognition | image + prompt | semantic zone label | DAM prompt-zone agent |
 | Fixed-camera person zone grounding | person bbox + configured polygons | exact zone ID | deterministic polygon method |
 
 The previous DAM PPE classification experiment is not the right evidence for this zone task. For this task, evidence must come from labeled images with expected background zone labels.

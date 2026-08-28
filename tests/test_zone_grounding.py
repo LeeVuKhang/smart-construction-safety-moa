@@ -3,7 +3,8 @@
 import unittest
 
 from src.agents.zone_grounding_agent import DefaultZone, Zone, ZoneGroundingAgent
-from src.detection.schemas import Detection
+from src.detection.schemas import Detection, ZoneRecognition
+from src.pipeline.baseline_pipeline import assign_background_zone_to_people
 
 
 def person(object_id: str, bbox: tuple[float, float, float, float]) -> Detection:
@@ -54,6 +55,26 @@ class ZoneGroundingTests(unittest.TestCase):
         detection = Detection("H01", "helmet", 0.9, (10, 10, 20, 20))
         with self.assertRaises(ValueError):
             agent().assign_person(detection)
+
+    def test_dam_background_zone_can_be_assigned_to_people(self):
+        recognition = ZoneRecognition(
+            zone_id="Z01",
+            zone_type="active_work_area",
+            confidence=0.8,
+            source="dam_prompt",
+            reason="active construction background",
+        )
+        assignments = assign_background_zone_to_people(
+            [
+                person("P01", (10, 10, 30, 40)),
+                Detection("H01", "helmet", 0.9, (10, 10, 20, 20)),
+            ],
+            recognition,
+        )
+        self.assertEqual(len(assignments), 1)
+        self.assertEqual(assignments[0].zone_id, "Z01")
+        self.assertEqual(assignments[0].source, "dam_prompt")
+        self.assertEqual(assignments[0].anchor_point, (20, 40))
 
 
 if __name__ == "__main__":

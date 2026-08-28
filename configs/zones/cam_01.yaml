@@ -3,11 +3,13 @@ camera_id: cam_01
 default_zone:
   zone_id: Z00
   zone_type: general_area
+  semantic_description: ordinary non-restricted construction-site access area
 
 zones:
   - zone_id: Z01
     zone_type: active_work_area
     priority: 30
+    semantic_description: normal construction work area with active workers, tools, materials, or ongoing site activity
     polygon:
       - [100, 200]
       - [700, 200]
@@ -17,6 +19,7 @@ zones:
   - zone_id: Z02
     zone_type: restricted_area
     priority: 100
+    semantic_description: hazardous or access-controlled area with barriers, heavy machinery proximity, excavation, warning signs, or restricted access
     polygon:
       - [500, 250]
       - [900, 250]
