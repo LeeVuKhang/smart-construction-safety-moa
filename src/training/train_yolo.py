@@ -223,7 +223,7 @@ def train(config: dict) -> Path:
     save_experiment_manifest(
         config,
         experiment_dir,
-        epochs_completed=actual_epoch + 1 if actual_epoch is not None else None,
+        epochs_completed=actual_epoch,
     )
     return experiment_dir
 

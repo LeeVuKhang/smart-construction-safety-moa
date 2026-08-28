@@ -99,7 +99,7 @@ def benchmark_model(
         batch=config["batch"],
         conf=config["validation"]["conf"],
         iou=config["validation"]["iou"],
-        project="results/evaluation",
+        project=str(Path("results/evaluation").resolve()),
         name=f"{config['experiment_name']}_benchmark",
         exist_ok=True,
     )
@@ -122,7 +122,7 @@ def benchmark_model(
         "map50_95": standard_metrics["map50_95"],
         "latency_ms": latency,
         "fps": fps,
-        "weights": str(weights),
+        "weights": relative_to_cwd(weights),
         "recommendation_note": recommendation_note(standard_metrics, latency, fps, weights),
     }
     return row, per_class_metrics(config, metrics)
@@ -207,6 +207,14 @@ def value_at(values: list, index: int) -> float | None:
     if index >= len(values):
         return None
     return float(values[index])
+
+
+def relative_to_cwd(path: Path) -> str:
+    """Return a portable path relative to the current repository when possible."""
+    try:
+        return str(path.resolve().relative_to(Path.cwd().resolve())).replace("\\", "/")
+    except ValueError:
+        return str(path)
 
 
 def write_csv(rows: list[dict], output_path: Path) -> None:
