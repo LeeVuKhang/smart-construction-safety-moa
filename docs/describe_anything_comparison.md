@@ -15,6 +15,8 @@ DAM is a detailed localized captioning model. It accepts an image or video regio
 
 Therefore, DAM must not be compared directly against YOLO11n/s/m using detector metrics such as mAP unless an additional localization and label-extraction pipeline is defined.
 
+This file is a PPE semantic-classification appendix. It is not the zone-grounding comparison. The zone-specific comparison is documented in `docs/zone_grounding_comparison.md`.
+
 ## Fair Comparison Protocol
 
 The first scientifically defensible comparison is a region-level PPE classification test:
@@ -150,7 +152,7 @@ Confusion matrix:
 | `helmet` | 14 | 0 | 4 | 0 | 24 |
 | `no_helmet` | 11 | 0 | 0 | 0 | 0 |
 
-Interpretation: DAM-3B did not work well as a closed-set PPE region classifier under this protocol. It often returned descriptive or coordinate-like outputs instead of a stable class label, so the evaluator uses a conservative parser and records unsupported responses as `unknown`. This result supports keeping YOLO11n as the selected baseline detector.
+Interpretation: DAM-3B did not work well as a closed-set PPE region classifier under this protocol. It often returned descriptive or coordinate-like outputs instead of a stable class label, so the evaluator uses a conservative parser and records unsupported responses as `unknown`. This result is evidence only for the PPE semantic-labeling path, not for the zone-grounding component.
 
 ## Status
 

@@ -173,3 +173,5 @@ results/benchmarks/per_class_metrics.csv
 Zones are fixed polygons configured manually for each camera under `configs/zones/`. A person is assigned using the bottom-center anchor of the person bounding box. If multiple polygons contain the anchor, the highest-priority zone wins. If no polygon contains the anchor, the person is assigned to `default_zone`.
 
 Zone Grounding does not check PPE, evaluate rules, trigger alerts, or perform behavior/MoA reasoning.
+
+The zone comparison and fixture evaluation are documented in `docs/zone_grounding_comparison.md`.

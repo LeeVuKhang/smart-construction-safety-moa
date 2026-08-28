@@ -1,0 +1,42 @@
+[
+  {
+    "person_id": "P01",
+    "confidence": 0.95,
+    "bbox": [150, 100, 250, 300]
+  },
+  {
+    "person_id": "P02",
+    "confidence": 0.94,
+    "bbox": [550, 150, 650, 400]
+  },
+  {
+    "person_id": "P03",
+    "confidence": 0.93,
+    "bbox": [750, 250, 850, 680]
+  },
+  {
+    "person_id": "P04",
+    "confidence": 0.92,
+    "bbox": [20, 20, 80, 120]
+  },
+  {
+    "person_id": "P05",
+    "confidence": 0.91,
+    "bbox": [480, 200, 520, 250]
+  },
+  {
+    "person_id": "P06",
+    "confidence": 0.9,
+    "bbox": [100, 100, 140, 200]
+  },
+  {
+    "person_id": "P07",
+    "confidence": 0.89,
+    "bbox": [680, 100, 720, 650]
+  },
+  {
+    "person_id": "P08",
+    "confidence": 0.88,
+    "bbox": [900, 300, 940, 700]
+  }
+]

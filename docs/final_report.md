@@ -156,7 +156,26 @@ Justification:
 
 YOLO11s is marginally faster in this latency run, but its accuracy and especially `no_helmet` recall are substantially worse. YOLO11m is larger and slower while not improving the primary metric.
 
-## 12. Describe Anything Comparison
+## 12. Zone Grounding Evaluation
+
+The zone component is evaluated as spatial grounding, not PPE classification:
+
+```text
+person bbox + fixed camera zone polygons -> zone_id
+```
+
+The fixture under `data/zone_eval/` uses `configs/zones/cam_01.yaml` and covers active-work-area assignment, restricted-area assignment, overlapping polygons with priority selection, boundary points counted as inside, and default-zone fallback.
+
+Zone grounding result:
+
+| Method | Input | Output | Zone assignment accuracy | Default zone rate |
+| --- | --- | --- | ---: | ---: |
+| Deterministic polygon grounding | person bbox + camera polygons | configured zone ID | 1.0000 | 0.2500 |
+| DAM-3B | image/masked region -> text | free-form localized description | not directly applicable | not directly applicable |
+
+Correct zone conclusion: the deterministic polygon method is the baseline for this component because fixed-camera safety zones are explicit configured geometry. DAM is a localized captioning model and does not natively output configured zone IDs from polygon membership.
+
+## 13. Describe Anything PPE Semantic Appendix
 
 Describe Anything Model (DAM-3B from `NVlabs/describe-anything`) was evaluated separately as a region-level semantic classifier because DAM is a detailed localized captioning model, not an end-to-end object detector.
 
@@ -181,9 +200,9 @@ DAM per-class metrics:
 | `helmet` | 0.0000 | 0.0000 | 0.0000 | 42 |
 | `no_helmet` | 0.0000 | 0.0000 | 0.0000 | 11 |
 
-Conclusion: DAM-3B is not competitive with YOLO11n for this PPE monitoring baseline. Even when localization is supplied by ground-truth boxes, DAM did not reliably return the closed-set PPE labels needed by the rule engine.
+Conclusion for this appendix: DAM-3B did not reliably return the closed-set PPE labels needed by the PPE evidence path. This is separate from the zone-grounding result above.
 
-## 13. Unresolved Issues
+## 14. Unresolved Issues
 
 - `no_helmet` remains the smallest class with 485 target boxes and only 45 validation instances.
 - Source labels required boundary clipping during preparation.
@@ -192,7 +211,7 @@ Conclusion: DAM-3B is not competitive with YOLO11n for this PPE monitoring basel
 - Benchmark latency was measured on one Tesla T4 and may differ on deployment hardware.
 - DAM-3B was evaluated on the first 100 validation regions, not the full validation region set, because it is a text-generation model and each region requires a separate request.
 
-## 14. Reproduction Commands
+## 15. Reproduction Commands
 
 ```bash
 cd /data/quyhv/data/Construction-Safety-Monitoring
@@ -203,6 +222,11 @@ bash scripts/train_all.sh
 python3 -m src.training.benchmark_models \
   --configs configs/models/yolo11n.yaml configs/models/yolo11s.yaml configs/models/yolo11m.yaml \
   --output-dir results/benchmarks
+python3 -m src.evaluation.zone_metrics \
+  --zone-config configs/zones/cam_01.yaml \
+  --detections data/zone_eval/detections.json \
+  --ground-truth data/zone_eval/ground_truth.json \
+  --output-dir results/zone_eval
 python3 -m src.evaluation.dam_region_ppe_eval \
   --dataset-yaml data/processed/dataset.yaml \
   --split val \

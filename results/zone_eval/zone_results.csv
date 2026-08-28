@@ -1,0 +1,9 @@
+person_id,zone_id,zone_type,source,anchor_point
+P01,Z01,active_work_area,polygon,"(200.0, 300.0)"
+P02,Z02,restricted_area,polygon,"(600.0, 400.0)"
+P03,Z02,restricted_area,polygon,"(800.0, 680.0)"
+P04,Z00,general_area,default,"(50.0, 120.0)"
+P05,Z02,restricted_area,polygon,"(500.0, 250.0)"
+P06,Z01,active_work_area,polygon,"(120.0, 200.0)"
+P07,Z02,restricted_area,polygon,"(700.0, 650.0)"
+P08,Z00,general_area,default,"(920.0, 700.0)"

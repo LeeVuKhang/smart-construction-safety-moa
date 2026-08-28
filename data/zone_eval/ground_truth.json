@@ -1,0 +1,42 @@
+[
+  {
+    "frame_id": "frame_001",
+    "person_id": "P01",
+    "expected_zone": "Z01"
+  },
+  {
+    "frame_id": "frame_001",
+    "person_id": "P02",
+    "expected_zone": "Z02"
+  },
+  {
+    "frame_id": "frame_001",
+    "person_id": "P03",
+    "expected_zone": "Z02"
+  },
+  {
+    "frame_id": "frame_001",
+    "person_id": "P04",
+    "expected_zone": "Z00"
+  },
+  {
+    "frame_id": "frame_001",
+    "person_id": "P05",
+    "expected_zone": "Z02"
+  },
+  {
+    "frame_id": "frame_001",
+    "person_id": "P06",
+    "expected_zone": "Z01"
+  },
+  {
+    "frame_id": "frame_001",
+    "person_id": "P07",
+    "expected_zone": "Z02"
+  },
+  {
+    "frame_id": "frame_001",
+    "person_id": "P08",
+    "expected_zone": "Z00"
+  }
+]
