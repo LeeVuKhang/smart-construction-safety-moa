@@ -126,9 +126,7 @@ class ContextAction(str, Enum):
     ABSTAIN = "ABSTAIN"
 
 
-PPE_REQUIRED_ZONE_TYPES = frozenset(
-    {"active_work_area", "restricted_zone", "work_at_height"}
-)
+PPE_REQUIRED_ZONE_TYPES = frozenset({"active_work_area", "restricted_zone", "work_at_height"})
 PPE_EXEMPT_ZONE_TYPES = frozenset({"site_office", "rest_area"})
 SUPPORTED_ZONE_TYPES = PPE_REQUIRED_ZONE_TYPES | PPE_EXEMPT_ZONE_TYPES
 
@@ -194,9 +192,7 @@ class ContextRequest:
             "neighbor_frame_refs": self.neighbor_frame_refs,
             "higher_resolution_source_ref": self.higher_resolution_source_ref,
             "evidence_issues": [issue.value for issue in self.evidence_issues],
-            "allowed_context_actions": [
-                action.value for action in self.allowed_context_actions
-            ],
+            "allowed_context_actions": [action.value for action in self.allowed_context_actions],
             "context_attempt_count": self.context_attempt_count,
             "max_context_attempts": self.max_context_attempts,
             "detections": [detection.to_dict() for detection in self.detections],
@@ -444,9 +440,7 @@ class EvidenceGateResult:
             "reason_codes": [code.value for code in self.reason_codes],
             "missing_fields": self.missing_fields,
             "recoverable": self.recoverable,
-            "allowed_context_actions": [
-                action.value for action in self.allowed_context_actions
-            ],
+            "allowed_context_actions": [action.value for action in self.allowed_context_actions],
         }
 
 

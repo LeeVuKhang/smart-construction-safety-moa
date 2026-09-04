@@ -174,15 +174,11 @@ class EvidenceSufficiencyGate:
             default=0.0,
         )
         if target_confidence < self.min_person_confidence:
-            confidence_blockers.append(
-                EvidenceReasonCode.TARGET_CONFIDENCE_BELOW_THRESHOLD
-            )
+            confidence_blockers.append(EvidenceReasonCode.TARGET_CONFIDENCE_BELOW_THRESHOLD)
         if ppe.confidence < self.min_ppe_confidence:
             confidence_blockers.append(EvidenceReasonCode.PPE_CONFIDENCE_BELOW_THRESHOLD)
         if grounding.confidence < self.min_grounding_confidence:
-            confidence_blockers.append(
-                EvidenceReasonCode.GROUNDING_CONFIDENCE_BELOW_THRESHOLD
-            )
+            confidence_blockers.append(EvidenceReasonCode.GROUNDING_CONFIDENCE_BELOW_THRESHOLD)
         if ppe.conflicts:
             confidence_blockers.append(EvidenceReasonCode.PPE_CONFLICT)
         if ppe.helmet in {"uncertain", "unknown"}:
@@ -201,9 +197,7 @@ class EvidenceSufficiencyGate:
             if issue in {EvidenceIssue.LOW_RESOLUTION, EvidenceIssue.TARGET_TOO_SMALL}:
                 if candidate.higher_resolution_source_ref:
                     ambiguity_reasons.append(EvidenceReasonCode.VISUAL_AMBIGUITY)
-                    acquisition_actions.add(
-                        ContextAction.REQUEST_HIGHER_RESOLUTION_CROP
-                    )
+                    acquisition_actions.add(ContextAction.REQUEST_HIGHER_RESOLUTION_CROP)
                 else:
                     unrecoverable.append(EvidenceReasonCode.MEDIA_NOT_RECOVERABLE)
             elif issue is EvidenceIssue.OCCLUDED:
@@ -239,10 +233,7 @@ class EvidenceSufficiencyGate:
             recoverable.extend(ambiguity_reasons)
 
         allowed_actions: set[ContextAction] = set(acquisition_actions)
-        if (
-            recoverable == [EvidenceReasonCode.RELATION_AMBIGUOUS]
-            and not acquisition_actions
-        ):
+        if recoverable == [EvidenceReasonCode.RELATION_AMBIGUOUS] and not acquisition_actions:
             allowed_actions.add(ContextAction.EMIT_CONTEXT_EVIDENCE)
 
         if recoverable and not candidate.source_ref:

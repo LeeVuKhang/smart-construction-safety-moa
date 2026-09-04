@@ -23,13 +23,12 @@ agents safe.
 - A loopback-only `llama.cpp` adapter.
 - `RuleSeverityAgent` and the initial helmet-zone rule catalog.
 - Unit tests for fail-closed routing and validation.
+- **Baseline Detector**: YOLO-based detector training, inference, and data preparation (merged into `src/detector_baseline/`).
 
 ### Not included
 
-- Detector training or inference.
-- Person-PPE association and zone-agent implementations.
+- Person-PPE association and zone-agent implementations (beyond the baseline scripts).
 - Camera/RTSP connection, frame sampling, buffering, or end-to-end video ingestion.
-- Detector inference and model-specific tensor normalization.
 - Automatic fulfillment of frame/crop requests.
 - Final orchestration, alert policy, reporting, or external notifications.
 - Model weights, runtime binaries, private media, or benchmark results.

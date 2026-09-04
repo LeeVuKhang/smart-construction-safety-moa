@@ -363,9 +363,7 @@ class TestContextAgent(unittest.TestCase):
                     selected_action=ContextAction.EMIT_CONTEXT_EVIDENCE,
                     context_confidence=0.9,
                 )
-                result = ContextAgent(FakeContextModelAdapter(proposal)).analyze(
-                    build_request()
-                )
+                result = ContextAgent(FakeContextModelAdapter(proposal)).analyze(build_request())
 
                 self.assertEqual(result.selected_action, ContextAction.ABSTAIN)
                 self.assertIn(expected_error, result.validation_errors)
