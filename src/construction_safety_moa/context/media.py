@@ -94,9 +94,7 @@ class ResolvedContextMedia:
         return {
             "presented_frame_refs": list(self.presented_frame_refs),
             "presented_crop_refs": list(self.presented_crop_refs),
-            "available_but_not_acquired_refs": list(
-                self.available_but_not_acquired_refs
-            ),
+            "available_but_not_acquired_refs": list(self.available_but_not_acquired_refs),
             "resolved_at": self.resolved_at,
             "validation_errors": list(self.validation_errors),
             "artifacts": [artifact.metadata() for artifact in self.artifacts],
@@ -147,14 +145,10 @@ class MediaResolver:
 
         entry = self.manifest.get(request.frame_ref)
         if entry is None:
-            resolved.validation_errors.append(
-                f"MEDIA_REF_NOT_IN_MANIFEST:{request.frame_ref}"
-            )
+            resolved.validation_errors.append(f"MEDIA_REF_NOT_IN_MANIFEST:{request.frame_ref}")
             return resolved
         if entry.logical_ref != request.frame_ref:
-            resolved.validation_errors.append(
-                f"MANIFEST_LOGICAL_REF_MISMATCH:{entry.logical_ref}"
-            )
+            resolved.validation_errors.append(f"MANIFEST_LOGICAL_REF_MISMATCH:{entry.logical_ref}")
             return resolved
 
         source_path, path_error = self._authorized_path(entry, request.frame_ref)
@@ -162,54 +156,38 @@ class MediaResolver:
             resolved.validation_errors.append(path_error)
             return resolved
         if source_path is None or not source_path.is_file():
-            resolved.validation_errors.append(
-                f"MEDIA_FILE_MISSING:{request.frame_ref}"
-            )
+            resolved.validation_errors.append(f"MEDIA_FILE_MISSING:{request.frame_ref}")
             return resolved
 
         try:
             source_size = source_path.stat().st_size
         except OSError:
-            resolved.validation_errors.append(
-                f"MEDIA_FILE_UNREADABLE:{request.frame_ref}"
-            )
+            resolved.validation_errors.append(f"MEDIA_FILE_UNREADABLE:{request.frame_ref}")
             return resolved
         if source_size > self.max_source_bytes:
-            resolved.validation_errors.append(
-                f"MEDIA_FILE_TOO_LARGE:{request.frame_ref}"
-            )
+            resolved.validation_errors.append(f"MEDIA_FILE_TOO_LARGE:{request.frame_ref}")
             return resolved
 
         try:
             source_bytes = source_path.read_bytes()
         except OSError:
-            resolved.validation_errors.append(
-                f"MEDIA_FILE_UNREADABLE:{request.frame_ref}"
-            )
+            resolved.validation_errors.append(f"MEDIA_FILE_UNREADABLE:{request.frame_ref}")
             return resolved
 
         source_sha256 = hashlib.sha256(source_bytes).hexdigest()
         if not self._valid_sha256(entry.sha256):
-            resolved.validation_errors.append(
-                f"INVALID_MANIFEST_CHECKSUM:{request.frame_ref}"
-            )
+            resolved.validation_errors.append(f"INVALID_MANIFEST_CHECKSUM:{request.frame_ref}")
             return resolved
         if source_sha256 != entry.sha256.lower():
-            resolved.validation_errors.append(
-                f"SOURCE_CHECKSUM_MISMATCH:{request.frame_ref}"
-            )
+            resolved.validation_errors.append(f"SOURCE_CHECKSUM_MISMATCH:{request.frame_ref}")
             return resolved
 
         detected_mime = self._detect_mime(source_bytes)
         if entry.mime_type not in SUPPORTED_IMAGE_MIME_TYPES:
-            resolved.validation_errors.append(
-                f"UNSUPPORTED_MANIFEST_MIME:{entry.mime_type}"
-            )
+            resolved.validation_errors.append(f"UNSUPPORTED_MANIFEST_MIME:{entry.mime_type}")
             return resolved
         if detected_mime != entry.mime_type:
-            resolved.validation_errors.append(
-                f"SOURCE_MIME_MISMATCH:{request.frame_ref}"
-            )
+            resolved.validation_errors.append(f"SOURCE_MIME_MISMATCH:{request.frame_ref}")
             return resolved
 
         try:
@@ -229,16 +207,12 @@ class MediaResolver:
                     return resolved
                 image = ImageOps.exif_transpose(opened).convert("RGB")
         except (OSError, UnidentifiedImageError, ValueError):
-            resolved.validation_errors.append(
-                f"INVALID_IMAGE_CONTENT:{request.frame_ref}"
-            )
+            resolved.validation_errors.append(f"INVALID_IMAGE_CONTENT:{request.frame_ref}")
             return resolved
 
         source_width, source_height = image.size
         if source_width * source_height > self.max_source_pixels:
-            resolved.validation_errors.append(
-                f"IMAGE_PIXEL_LIMIT_EXCEEDED:{request.frame_ref}"
-            )
+            resolved.validation_errors.append(f"IMAGE_PIXEL_LIMIT_EXCEEDED:{request.frame_ref}")
             return resolved
 
         zone_polygon = entry.zone_polygons.get(request.zone_grounding.zone_id)
@@ -262,9 +236,7 @@ class MediaResolver:
         for detection in request.detections:
             bbox = self._validated_bbox(detection, source_width, source_height)
             if bbox is None:
-                resolved.validation_errors.append(
-                    f"INVALID_DETECTION_BBOX:{detection.object_id}"
-                )
+                resolved.validation_errors.append(f"INVALID_DETECTION_BBOX:{detection.object_id}")
             else:
                 normalized_detections.append((detection, bbox))
         if resolved.validation_errors:
@@ -275,9 +247,7 @@ class MediaResolver:
             None,
         )
         if target is None:
-            resolved.validation_errors.append(
-                f"WORKER_BBOX_NOT_FOUND:{request.worker_id}"
-            )
+            resolved.validation_errors.append(f"WORKER_BBOX_NOT_FOUND:{request.worker_id}")
             return resolved
         expected_crop_ref = self._expected_crop_ref(
             request.frame_ref,
@@ -285,9 +255,7 @@ class MediaResolver:
             target[1],
         )
         if request.crop_ref != expected_crop_ref:
-            resolved.validation_errors.append(
-                f"CROP_REF_BBOX_MISMATCH:{request.crop_ref}"
-            )
+            resolved.validation_errors.append(f"CROP_REF_BBOX_MISMATCH:{request.crop_ref}")
             return resolved
 
         overlay_image, overlay_resize, overlay_parameters = self._overlay(
@@ -354,9 +322,7 @@ class MediaResolver:
             dict.fromkeys(
                 ref
                 for ref in possible
-                if isinstance(ref, str)
-                and ref != request.frame_ref
-                and ref in self.manifest
+                if isinstance(ref, str) and ref != request.frame_ref and ref in self.manifest
             )
         )
 
@@ -486,9 +452,7 @@ class MediaResolver:
             "applied": True,
             "worker_id": request.worker_id,
             "detection_ids": [item.object_id for item, _ in detections],
-            "detection_bboxes_source_pixels": {
-                item.object_id: bbox for item, bbox in detections
-            },
+            "detection_bboxes_source_pixels": {item.object_id: bbox for item, bbox in detections},
             "zone_id": request.zone_grounding.zone_id,
             "zone_polygon_source_pixels": zone_polygon,
             "style": dict(style),
@@ -530,8 +494,7 @@ class MediaResolver:
         bbox: list[float],
     ) -> str:
         coordinates = ",".join(
-            str(int(value)) if float(value).is_integer() else str(float(value))
-            for value in bbox
+            str(int(value)) if float(value).is_integer() else str(float(value)) for value in bbox
         )
         return f"{frame_ref}::{worker_id}::{coordinates}"
 

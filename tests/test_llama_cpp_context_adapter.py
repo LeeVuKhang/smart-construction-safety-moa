@@ -299,13 +299,9 @@ class TestLlamaCppContextModelAdapter(unittest.TestCase):
             {**invented_frame["evidence"][0], "frame_ref": "INVENTED-FRAME"}
         ]
         invented_crop = valid_model_content()
-        invented_crop["evidence"] = [
-            {**invented_crop["evidence"][0], "crop_ref": "INVENTED-CROP"}
-        ]
+        invented_crop["evidence"] = [{**invented_crop["evidence"][0], "crop_ref": "INVENTED-CROP"}]
         invented_zone = valid_model_content()
-        invented_zone["evidence"] = [
-            {**invented_zone["evidence"][0], "zone_ref": "INVENTED-ZONE"}
-        ]
+        invented_zone["evidence"] = [{**invented_zone["evidence"][0], "zone_ref": "INVENTED-ZONE"}]
         cases = {
             "object": (
                 invented,

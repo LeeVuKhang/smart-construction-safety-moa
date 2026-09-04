@@ -157,9 +157,7 @@ def build_context_proposal_schema(request: ContextRequest) -> dict[str, Any]:
     """Build the request-narrowed P0 JSON schema sent to llama-server."""
 
     allowed_actions = [
-        action.value
-        for action in request.allowed_context_actions
-        if action in P0_CONTEXT_ACTIONS
+        action.value for action in request.allowed_context_actions if action in P0_CONTEXT_ACTIONS
     ]
     detection_ids = [detection.object_id for detection in request.detections]
     object_ids = [object_id for object_id in detection_ids if object_id != request.worker_id]
@@ -208,9 +206,7 @@ def build_context_proposal_schema(request: ContextRequest) -> dict[str, Any]:
         "type": "object",
         "additionalProperties": False,
         "required": ["reason_code"],
-        "properties": {
-            "reason_code": {"type": "string", "minLength": 1, "maxLength": 128}
-        },
+        "properties": {"reason_code": {"type": "string", "minLength": 1, "maxLength": 128}},
     }
     properties: dict[str, Any] = {
         "evidence": {"type": "array", "maxItems": 8, "items": evidence_schema},
@@ -237,11 +233,7 @@ def build_context_proposal_schema(request: ContextRequest) -> dict[str, Any]:
         "properties": properties,
         "allOf": [
             {
-                "if": {
-                    "properties": {
-                        "selected_action": {"const": "EMIT_CONTEXT_EVIDENCE"}
-                    }
-                },
+                "if": {"properties": {"selected_action": {"const": "EMIT_CONTEXT_EVIDENCE"}}},
                 "then": {
                     "properties": {
                         "evidence": {"minItems": 1},
@@ -462,9 +454,7 @@ class LlamaCppContextModelAdapter:
             "presented_media": {
                 "frame_refs": resolved.presented_frame_refs,
                 "crop_refs": resolved.presented_crop_refs,
-                "available_but_not_acquired_refs": (
-                    resolved.available_but_not_acquired_refs
-                ),
+                "available_but_not_acquired_refs": (resolved.available_but_not_acquired_refs),
                 "images": [artifact.metadata() for artifact in resolved.artifacts],
             },
         }
@@ -563,9 +553,7 @@ class LlamaCppContextModelAdapter:
                 errors.append(f"{prefix}_OBJECT_REF_INVALID_TYPE")
                 continue
             item_confidence = item["confidence"]
-            if isinstance(item_confidence, bool) or not isinstance(
-                item_confidence, (int, float)
-            ):
+            if isinstance(item_confidence, bool) or not isinstance(item_confidence, (int, float)):
                 errors.append(f"{prefix}_CONFIDENCE_INVALID_TYPE")
                 continue
             evidence.append(
@@ -747,18 +735,12 @@ class LlamaCppContextModelAdapter:
                 if resolved is not None
                 else []
             ),
-            "presented_frame_refs": (
-                resolved.presented_frame_refs if resolved is not None else []
-            ),
-            "presented_crop_refs": (
-                resolved.presented_crop_refs if resolved is not None else []
-            ),
+            "presented_frame_refs": (resolved.presented_frame_refs if resolved is not None else []),
+            "presented_crop_refs": (resolved.presented_crop_refs if resolved is not None else []),
             "media_resolution": (
                 {
                     "resolved_at": resolved.resolved_at,
-                    "available_but_not_acquired_refs": (
-                        resolved.available_but_not_acquired_refs
-                    ),
+                    "available_but_not_acquired_refs": (resolved.available_but_not_acquired_refs),
                     "validation_errors": resolved.validation_errors,
                 }
                 if resolved is not None

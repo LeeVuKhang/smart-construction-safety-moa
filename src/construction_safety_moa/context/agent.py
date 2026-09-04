@@ -160,8 +160,7 @@ class ContextAgent:
             ContextAction.ABSTAIN,
         }:
             evidence = [
-                replace(item, status=ContextEvidenceStatus.PROVISIONAL.value)
-                for item in evidence
+                replace(item, status=ContextEvidenceStatus.PROVISIONAL.value) for item in evidence
             ]
 
         return ContextResult(
@@ -333,15 +332,11 @@ class ContextAgent:
 
         terminal_labels = labels & self.TERMINAL_VISUAL_LABELS
         if action is not ContextAction.ABSTAIN and terminal_labels:
-            errors.extend(
-                f"BLOCKING_VISUAL_QUALITY:{label}" for label in sorted(terminal_labels)
-            )
+            errors.extend(f"BLOCKING_VISUAL_QUALITY:{label}" for label in sorted(terminal_labels))
 
         if action is ContextAction.EMIT_CONTEXT_EVIDENCE:
             confirmed = [
-                item
-                for item in evidence
-                if item.status == ContextEvidenceStatus.CONFIRMED.value
+                item for item in evidence if item.status == ContextEvidenceStatus.CONFIRMED.value
             ]
             if not confirmed:
                 errors.append("EMIT_REQUIRES_CONFIRMED_EVIDENCE")
@@ -530,9 +525,7 @@ class ContextAgent:
         model_metadata: dict[str, object] | None = None,
     ) -> ContextResult:
         invalid_refs = [
-            error
-            for error in validation_errors
-            if "REF" in error or "TARGET_DETECTION" in error
+            error for error in validation_errors if "REF" in error or "TARGET_DETECTION" in error
         ]
         missing_inputs = [
             error

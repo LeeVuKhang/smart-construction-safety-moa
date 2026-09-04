@@ -25,6 +25,7 @@ EQUIPMENT_CLASSES = {
     "vehicle",
 }
 
+
 class RuleInputNotReadyError(ValueError):
     """Raised when the rule agent is called before the deterministic gate is ready."""
 
@@ -130,9 +131,9 @@ class _HelmetZoneRulePolicy:
 
         if grounding.zone_type == "active_work_area":
             severity = "critical" if near_heavy_equipment is True else "medium"
-            missing = [] if near_heavy_equipment is not None else [
-                "NEAR_EQUIPMENT_RELATION_NOT_PROVIDED"
-            ]
+            missing = (
+                [] if near_heavy_equipment is not None else ["NEAR_EQUIPMENT_RELATION_NOT_PROVIDED"]
+            )
             uncertainty = (
                 "Near-equipment relation was not provided; severity was not upgraded."
                 if missing
@@ -146,7 +147,7 @@ class _HelmetZoneRulePolicy:
                 uncertainty=uncertainty,
                 reason_codes=[
                     "MISSING_HELMET_IN_ACTIVE_WORK_AREA",
-                    *( ["NEAR_HEAVY_EQUIPMENT_CONFIRMED"] if severity == "critical" else [] ),
+                    *(["NEAR_HEAVY_EQUIPMENT_CONFIRMED"] if severity == "critical" else []),
                 ],
                 evidence_refs=evidence_refs,
                 missing_evidence=missing,
@@ -206,9 +207,7 @@ class RuleSeverityAgent:
 
     def apply(self, candidate: CandidateEvent, gate_result: EvidenceGateResult) -> RuleMatch:
         if gate_result.route is not EvidenceRoute.READY_FOR_RULE:
-            raise RuleInputNotReadyError(
-                f"RULE_INPUT_NOT_READY:{gate_result.route.value}"
-            )
+            raise RuleInputNotReadyError(f"RULE_INPUT_NOT_READY:{gate_result.route.value}")
         if candidate.ppe_status is None or candidate.region_grounding is None:
             raise RuleInputNotReadyError("RULE_INPUT_NOT_READY:MISSING_NORMALIZED_EVIDENCE")
 
@@ -216,16 +215,12 @@ class RuleSeverityAgent:
         if (
             candidate.ppe_status.target_id != candidate.worker_id
             or candidate.region_grounding.target_id != candidate.worker_id
-            or any(
-                ref not in detection_ids
-                for ref in candidate.ppe_status.evidence_detection_ids
-            )
+            or any(ref not in detection_ids for ref in candidate.ppe_status.evidence_detection_ids)
         ):
             raise RuleInputNotReadyError("RULE_INPUT_NOT_READY:INVALID_NORMALIZED_EVIDENCE")
         if candidate.region_grounding.zone_type not in SUPPORTED_ZONE_TYPES:
             raise RuleInputNotReadyError(
-                "RULE_INPUT_NOT_READY:UNSUPPORTED_ZONE_TYPE:"
-                f"{candidate.region_grounding.zone_type}"
+                f"RULE_INPUT_NOT_READY:UNSUPPORTED_ZONE_TYPE:{candidate.region_grounding.zone_type}"
             )
         if candidate.ppe_status.helmet not in {"visible", "missing"}:
             raise RuleInputNotReadyError("RULE_INPUT_NOT_READY:INDETERMINATE_PPE_STATE")

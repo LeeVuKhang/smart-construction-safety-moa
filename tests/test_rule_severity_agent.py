@@ -27,9 +27,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
 def load_rules() -> list[dict[str, object]]:
-    payload = json.loads(
-        (PROJECT_ROOT / "config" / "rules.json").read_text(encoding="utf-8")
-    )
+    payload = json.loads((PROJECT_ROOT / "config" / "rules.json").read_text(encoding="utf-8"))
     return payload["rules"]
 
 
@@ -179,9 +177,7 @@ class TestRuleSeverityAgent(unittest.TestCase):
             self.agent.apply(candidate, ready_gate())
 
     def test_missing_catalog_rule_fails_closed(self) -> None:
-        incomplete = [
-            rule for rule in self.rules if rule["rule_id"] != "PPE_ACTIVE_ZONE_001"
-        ]
+        incomplete = [rule for rule in self.rules if rule["rule_id"] != "PPE_ACTIVE_ZONE_001"]
 
         with self.assertRaisesRegex(RuleInputNotReadyError, "RULE_NOT_CONFIGURED"):
             RuleSeverityAgent(incomplete).apply(build_candidate(), ready_gate())
